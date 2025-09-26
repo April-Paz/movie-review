@@ -1,4 +1,4 @@
-# MovieVerse - Movie Review Platform
+# Movie Review App - Movie Review Platform
 
 ## Team Members
 - April Paz
