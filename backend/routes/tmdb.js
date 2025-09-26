@@ -1,4 +1,4 @@
-// routes/tmdb.js - COMPLETE TMDB API INTEGRATION
+// routes/tmdb.js - (WIP) TMDB API INTEGRATION
 require('dotenv').config();
 const express = require('express');
 const https = require('https');
@@ -332,7 +332,7 @@ router.get('/movies/upcoming', async (req, res) => {
 
 // ===== TEST ROUTES =====
 
-// GET /api/tmdb/test - Simple test route
+// GET /api/tmdb/test - test route
 router.get('/test', (req, res) => {
     res.json({
         success: true,
