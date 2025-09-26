@@ -1,27 +1,98 @@
-# Backend environment files
+# ==================== #
+# Backend Environment Files
+# ==================== #
 backend/.env
 backend/.env.*
 backend/.env.local
+backend/.env.development.local
+backend/.env.test.local
+backend/.env.production.local
 
-# Frontend environment files (when you add frontend)
+# ==================== #
+# Frontend Environment Files (when you add React)
+# ==================== #
 frontend/.env
 frontend/.env.*
 frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
 
-# Node modules
+# ==================== #
+# Node Modules
+# ==================== #
 backend/node_modules/
 frontend/node_modules/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
+# ==================== #
+# Build Outputs & Cache
+# ==================== #
+# React build (future)
+frontend/build/
+frontend/dist/
+frontend/.next/
+
+# Node.js
+backend/dist/
+backend/build/
+.cache/
+
+# ==================== #
 # Logs
+# ==================== #
 *.log
 logs/
+backend/logs/
+frontend/logs/
 
-# OS files
+# ==================== #
+# Operating System Files
+# ==================== #
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# IDE files
+# ==================== #
+# IDE and Editor Files
+# ==================== #
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-*
+
+# ==================== #
+# MongoDB (if you create local data)
+# ==================== #
+data/
+mongodb/
+*.mongodb
+
+# ==================== #
+# Temporary Files
+# ==================== #
+*.tmp
+*.temp
+temp/
+uploads/
+
+# ==================== #
+# Coverage Reports
+# ==================== #
+coverage/
+.nyc_output
+
+# ==================== #
+# Package Manager Specific
+# ==================== #
+.pnpm-debug.log*
+.yarn/
+.yarnrc.yml
