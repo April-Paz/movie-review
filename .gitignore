@@ -35,11 +35,13 @@ yarn-error.log*
 frontend/build/
 frontend/dist/
 frontend/.next/
+frontend/.nuxt/
 
 # Node.js
 backend/dist/
 backend/build/
 .cache/
+.tmp/
 
 # ==================== #
 # Logs
@@ -48,6 +50,9 @@ backend/build/
 logs/
 backend/logs/
 frontend/logs/
+pids
+*.pid
+*.pid.lock
 
 # ==================== #
 # Operating System Files
@@ -59,6 +64,7 @@ frontend/logs/
 .Trashes
 ehthumbs.db
 Thumbs.db
+Desktop.ini
 
 # ==================== #
 # IDE and Editor Files
@@ -68,6 +74,9 @@ Thumbs.db
 *.swp
 *.swo
 *.sublime-*
+*.iml
+*.ipr
+*.iws
 
 # ==================== #
 # MongoDB (if you create local data)
@@ -75,6 +84,7 @@ Thumbs.db
 data/
 mongodb/
 *.mongodb
+/mongodb-data/
 
 # ==================== #
 # Temporary Files
@@ -83,12 +93,14 @@ mongodb/
 *.temp
 temp/
 uploads/
+public/uploads/
 
 # ==================== #
 # Coverage Reports
 # ==================== #
 coverage/
 .nyc_output
+*.lcov
 
 # ==================== #
 # Package Manager Specific
@@ -96,3 +108,17 @@ coverage/
 .pnpm-debug.log*
 .yarn/
 .yarnrc.yml
+.yarn-integrity
+
+# ==================== #
+# SSL & Certificates
+# ==================== #
+*.pem
+*.crt
+*.key
+
+# ==================== #
+# Package Lock Files - KEEP THESE
+# ==================== #
+# !backend/package-lock.json  # Keep npm lockfile for backend
+# !frontend/package-lock.json # Keep npm lockfile for frontend (when you create it)
