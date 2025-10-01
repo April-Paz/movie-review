@@ -9,7 +9,7 @@ backend/.env.test.local
 backend/.env.production.local
 
 # ==================== #
-# Frontend Environment Files (when you add React)
+# Frontend Environment Files 
 # ==================== #
 frontend/.env
 frontend/.env.*
