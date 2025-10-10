@@ -66,8 +66,8 @@ const validateMovieId = [
 // Review validation
 const validateReview = [
   body('movieId')
-    .isMongoId()
-    .withMessage('Invalid movie ID format'),
+    .isInt({ min: 1 })             
+    .withMessage('Movie ID must be a valid TMDB ID'),
   body('rating')
     .isInt({ min: 1, max: 5 })
     .withMessage('Rating must be between 1 and 5'),
