@@ -41,9 +41,41 @@ const movieSchema = new mongoose.Schema({
   totalReviews: { 
     type: Number, 
     default: 0 
+  },
+  // TMDB integration fields
+  tmdbId: {
+    type: Number,
+    unique: true,
+    sparse: true
+  },
+  tmdbData: {
+    type: Object
   }
 }, {
   timestamps: true
 });
+
+// Static method to find or create from TMDB data
+movieSchema.statics.findOrCreateFromTMDB = async function(tmdbMovie) {
+  let movie = await this.findOne({ tmdbId: tmdbMovie.id });
+  
+  if (!movie) {
+    movie = new this({
+      title: tmdbMovie.title,
+      genre: tmdbMovie.genres ? tmdbMovie.genres.map(g => g.name) : [],
+      director: tmdbMovie.director || '',
+      cast: tmdbMovie.cast ? tmdbMovie.cast.slice(0, 5).map(p => p.name) : [],
+      releaseYear: new Date(tmdbMovie.release_date).getFullYear(),
+      description: tmdbMovie.overview,
+      duration: tmdbMovie.runtime,
+      poster: tmdbMovie.poster_path ? `https://image.tmdb.org/t/p/w500${tmdbMovie.poster_path}` : '',
+      tmdbId: tmdbMovie.id,
+      tmdbData: tmdbMovie
+    });
+    await movie.save();
+  }
+  
+  return movie;
+};
 
 module.exports = mongoose.model('Movie', movieSchema);

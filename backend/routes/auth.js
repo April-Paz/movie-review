@@ -1,29 +1,28 @@
 const express = require('express');
+const { validateUserRegistration, validateUserLogin } = require('../middleware/validation');
+const UserModel = require('../models/UserModel');
 const router = express.Router();
 
-// Test route
-router.get('/test', (req, res) => {
-    res.json({ 
-        success: true,
-        message: 'Auth route is working!',
-        timestamp: new Date().toISOString()
-    });
+// Register new user
+router.post('/register', validateUserRegistration, async (req, res) => {
+  const result = await UserModel.createUser(req.body);
+  res.status(result.status || 200).json(result);
 });
 
-// Register route
-router.post('/register', (req, res) => {
-    res.json({ 
-        success: true,
-        message: 'User registration endpoint'
-    });
+// Login user
+router.post('/login', validateUserLogin, async (req, res) => {
+  const { email, password } = req.body;
+  const result = await UserModel.loginUser(email, password);
+  res.status(result.status || 200).json(result);
 });
 
-// Login route
-router.post('/login', (req, res) => {
-    res.json({ 
-        success: true,
-        message: 'User login endpoint'
-    });
+// Get current user profile
+router.get('/me', async (req, res) => {
+  // This would require authentication middleware
+  res.json({ 
+    success: true,
+    message: 'Get current user profile endpoint'
+  });
 });
 
 module.exports = router;
