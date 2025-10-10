@@ -1,5 +1,6 @@
 const express = require('express');
 const { validateUserRegistration, validateUserLogin } = require('../middleware/validation');
+const { authenticateToken } = require('../middleware/auth');
 const UserModel = require('../models/UserModel');
 const router = express.Router();
 
@@ -16,13 +17,10 @@ router.post('/login', validateUserLogin, async (req, res) => {
   res.status(result.status || 200).json(result);
 });
 
-// Get current user profile
-router.get('/me', async (req, res) => {
-  // This would require authentication middleware
-  res.json({ 
-    success: true,
-    message: 'Get current user profile endpoint'
-  });
+// Get current user profile (PROTECTED)
+router.get('/me', authenticateToken, async (req, res) => {
+  const result = await UserModel.getUserById(req.user._id);
+  res.status(result.status || 200).json(result);
 });
 
 module.exports = router;
