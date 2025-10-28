@@ -14,9 +14,6 @@ My first backend project for my course. A website where users can sign up, revie
 cd backend
 npm install
 npm run dev
-
-Start MongoDB
-brew services start mongodb-community
 ```
 Visit: http://localhost:3000
 
