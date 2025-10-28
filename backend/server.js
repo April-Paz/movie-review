@@ -217,12 +217,12 @@ app.listen(PORT, () => {
   console.log(`Login: POST http://localhost:${PORT}/api/auth/login\n`);
   
   console.log(`Phase 3 Features Implemented:`);
-  console.log(`✅ MongoDB Atlas Integration`);
-  console.log(`✅ Database Connection Middleware`);
-  console.log(`✅ MongoDB Compass Ready`);
-  console.log(`✅ Modular Architecture`);
-  console.log(`✅ Application-level Middlewares`);
-  console.log(`✅ Proper Error Handling`);
-  console.log(`✅ TMDB API Integration`);
-  console.log(`✅ JWT Authentication Ready`);
+  console.log(`MongoDB Atlas Integration`);
+  console.log(`Database Connection Middleware`);
+  console.log(`MongoDB Compass Ready`);
+  console.log(`Modular Architecture`);
+  console.log(`Application-level Middlewares`);
+  console.log(`Proper Error Handling`);
+  console.log(`TMDB API Integration`);
+  console.log(`JWT Authentication Ready`);
 });
