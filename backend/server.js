@@ -19,8 +19,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// MongoDB Atlas Connection Middleware
-app.use(connectDB);
+// MongoDB Atlas Connection 
+connectDB();
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -40,7 +40,7 @@ app.get('/test', (req, res) => {
     message: 'Server is working!',
     timestamp: new Date().toISOString(),
     status: 'success',
-    database: mongoose.connection.readyState === 1 ? 'Connected ✅' : 'Disconnected ❌',
+    database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
     databaseType: 'MongoDB Atlas'
   });
 });
@@ -54,7 +54,7 @@ app.get('/api/health', (req, res) => {
     environment: process.env.NODE_ENV || 'development',
     database: {
       type: 'MongoDB Atlas',
-      status: mongoose.connection.readyState === 1 ? 'Connected ✅' : 'Disconnected ❌',
+      status: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
       name: mongoose.connection.name,
       host: mongoose.connection.host
     },
@@ -67,7 +67,7 @@ app.get('/api/health', (req, res) => {
 app.get('/api/db-status', (req, res) => {
   res.json({
     database: 'MongoDB Atlas',
-    status: mongoose.connection.readyState === 1 ? 'Connected ✅' : 'Disconnected ❌',
+    status: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
     host: mongoose.connection.host,
     name: mongoose.connection.name,
     atlas: true,
@@ -83,7 +83,7 @@ app.get('/', (req, res) => {
     phase: 'Phase 3 - MongoDB Atlas Complete',
     database: {
       type: 'MongoDB Atlas',
-      status: mongoose.connection.readyState === 1 ? 'Connected ✅' : 'Disconnected ❌'
+      status: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
     },
     availableRoutes: [
       '/api/health',
@@ -108,7 +108,7 @@ app.get('/api/debug-env', (req, res) => {
     mongodb: {
       uri: process.env.MONGODB_URI ? 'Configured' : 'NOT FOUND',
       type: 'MongoDB Atlas',
-      status: mongoose.connection.readyState === 1 ? 'Connected ✅' : 'Disconnected ❌'
+      status: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
     },
     tmdbKey: process.env.TMDB_API_KEY ? 'Configured' : 'NOT FOUND',
     tmdbKeyLength: process.env.TMDB_API_KEY ? process.env.TMDB_API_KEY.length : 0,
@@ -203,7 +203,7 @@ app.listen(PORT, () => {
   console.log(`Port: http://localhost:${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`Database: MongoDB Atlas`);
-  console.log(`Status: ${mongoose.connection.readyState === 1 ? 'Connected ✅' : 'Connecting...'}`);
+  console.log(`Status: ${mongoose.connection.readyState === 1 ? 'Connected' : 'Connecting...'}`);
   console.log(`==========================================\n`);
   
   console.log(`Available Test Endpoints:`);
