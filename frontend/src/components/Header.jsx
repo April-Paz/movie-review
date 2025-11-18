@@ -11,7 +11,7 @@ function Header() {
   return (
     <header className="header">
       <div className="container">
-        <Link to="/" className="logo">🎬 MovieReviews</Link>
+        <Link to="/" className="logo">🎞️ MovieReviews</Link>
         <nav>
           <Link to="/" className="nav-link">Home</Link>
           <Link to="/movies" className="nav-link">Movies</Link>

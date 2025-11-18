@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import Reviews from '../components/Reviews';
+import ReviewForm from '../components/ReviewForm';
 
 function MovieDetail() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [refreshReviews, setRefreshReviews] = useState(0);
 
   useEffect(() => {
     async function fetchMovie() {
@@ -28,6 +31,14 @@ function MovieDetail() {
     fetchMovie();
   }, [id]);
 
+  const handleReviewSubmitted = () => {
+    setRefreshReviews(prev => prev + 1); // Trigger reviews refresh
+  };
+
+  const handleReviewDeleted = () => {
+    setRefreshReviews(prev => prev + 1); // Also refresh when a review is deleted
+  };
+
   if (loading) return <div className="loading">Loading movie details...</div>;
   if (error) return <div className="error">{error}</div>;
   if (!movie) return <div className="error">Movie not found</div>;
@@ -48,7 +59,7 @@ function MovieDetail() {
         )}
         <div style={{ flex: 1, minWidth: '300px' }}>
           <h1>{movie.title}</h1>
-          {movie.tagline && <p style={{ fontStyle: 'italic', color: '#e50914' }}>"{movie.tagline}"</p>}
+          {movie.tagline && <p style={{ fontStyle: 'italic', color: '#FFD700' }}>"{movie.tagline}"</p>}
           
           <p><strong>Released:</strong> {movie.release_date || 'Unknown'}</p>
           <p><strong>Rating:</strong> ⭐ {movie.vote_average ? `${movie.vote_average}/10 (${movie.vote_count} votes)` : 'No ratings yet'}</p>
@@ -64,6 +75,24 @@ function MovieDetail() {
               <p style={{ marginTop: '0.5rem', lineHeight: '1.6' }}>{movie.overview}</p>
             </div>
           )}
+        </div>
+      </div>
+      
+      {/* Reviews Section */}
+      <div style={{ marginTop: '3rem' }}>
+        <ReviewForm 
+          movieId={id} 
+          movieTitle={movie.title}
+          onReviewSubmitted={handleReviewSubmitted}
+        />
+        
+        <div style={{ marginTop: '2rem' }}>
+          <Reviews 
+            key={refreshReviews} // Refresh when new review is submitted or deleted
+            movieId={id} 
+            movieTitle={movie.title}
+            onReviewDeleted={handleReviewDeleted}
+          />
         </div>
       </div>
       
