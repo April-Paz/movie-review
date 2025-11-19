@@ -11,16 +11,19 @@ body {
   color: #ffffff;
   line-height: 1.6;
   min-height: 100vh;
+  width: 100%;
 }
 
 #root {
   min-height: 100vh;
+  width: 100%;
 }
 
 .App {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 /* Header Styles */
@@ -42,6 +45,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .logo {
@@ -98,32 +102,40 @@ nav {
   gap: 1rem;
 }
 
-/* Main content area */
+/* Main content area - FIXED */
 main {
   flex: 1;
   padding-top: 80px;
   min-height: calc(100vh - 80px);
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Home Page Styles */
+/* Home Page Styles - COMPLETELY FIXED */
 .home {
   min-height: calc(100vh - 80px);
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
   background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
               url('https://images.unsplash.com/photo-1489599809505-f2e90e7c041c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
   background-size: cover;
   background-position: center;
+  background-attachment: fixed;
 }
 
 .hero {
   text-align: center;
-  max-width: 800px;
-  padding: 2rem;
+  max-width: 1200px;
   width: 100%;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero h1 {
@@ -132,6 +144,8 @@ main {
   color: #FFD700;
   line-height: 1.2;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  width: 100%;
 }
 
 .hero p {
@@ -139,6 +153,8 @@ main {
   margin-bottom: 2.5rem;
   color: #ffffff;
   opacity: 0.9;
+  text-align: center;
+  width: 100%;
 }
 
 .hero-buttons {
@@ -146,6 +162,7 @@ main {
   gap: 1.5rem;
   justify-content: center;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .btn {
@@ -191,15 +208,16 @@ main {
 .hero-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 3rem;
   max-width: 1000px;
   width: 100%;
+  text-align: center;
 }
 
 .hero-text {
   flex: 1;
-  text-align: left;
+  text-align: center;
 }
 
 .hero-icon {
@@ -218,31 +236,6 @@ main {
   50% {
     transform: translateY(-10px);
   }
-}
-
-/* Update the hero text alignment */
-.hero h1 {
-  font-size: 3.5rem;
-  margin-bottom: 1.5rem;
-  color: #FFD700;
-  line-height: 1.2;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  text-align: left;
-}
-
-.hero p {
-  font-size: 1.3rem;
-  margin-bottom: 2.5rem;
-  color: #ffffff;
-  opacity: 0.9;
-  text-align: left;
-}
-
-.hero-buttons {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: flex-start;
-  flex-wrap: wrap;
 }
 
 /* Movies Page Styles */
@@ -277,7 +270,7 @@ main {
   overflow: hidden;
 }
 
-.movie-card::before {
+/* .movie-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -285,7 +278,7 @@ main {
   right: 0;
   height: 4px;
   background: #FFD700;
-}
+} */
 
 .movie-card:hover {
   transform: translateY(-8px);
@@ -688,60 +681,170 @@ main {
   transform: none;
 }
 
+/* Delete Reviews */
+.delete-btn {
+  background: transparent;
+  border: 1px solid #ff6b6b;
+  color: #ff6b6b;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: auto;
+}
+
+.delete-btn:hover {
+  background: rgba(255, 107, 107, 0.1);
+  border-color: #ff4757;
+  color: #ff4757;
+}
+
+/* Banner Slideshow Styles */
+.banner-slideshow {
+  width: 100%;
+  height: 60vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.banner-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.banner-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.banner-slide.active {
+  opacity: 1;
+}
+
+/* Navigation arrows */
+.banner-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 215, 0, 0.3);
+  border: none;
+  color: white;
+  font-size: 2.5rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.banner-nav:hover {
+  background: rgba(255, 215, 0, 0.7);
+  color: #000000;
+}
+
+.banner-nav.prev {
+  left: 2rem;
+}
+
+.banner-nav.next {
+  right: 2rem;
+}
+
+/* Slide indicators */
+.banner-indicators {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.banner-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #FFD700;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.banner-indicator.active {
+  background: #FFD700;
+  transform: scale(1.2);
+}
+
+.banner-indicator:hover {
+  background: #FFD700;
+  transform: scale(1.1);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
-  .container {
+  .hero-content {
     flex-direction: column;
-    gap: 1rem;
-    padding: 0 1rem;
+    text-align: center;
+    gap: 2rem;
   }
-
-  nav {
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
+  
+  .hero-text {
+    text-align: center;
   }
-
-  .auth-links {
-    justify-content: center;
-    width: 100%;
+  
+  .hero-icon {
+    font-size: 8rem;
+    order: -1;
   }
-
-  .user-section {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
+  
   .hero h1 {
     font-size: 2.5rem;
   }
-
+  
   .hero p {
     font-size: 1.1rem;
   }
-
-  .hero-buttons {
-    flex-direction: column;
-    align-items: center;
+  
+  .banner-slideshow {
+    height: 40vh;
   }
-
-  .btn {
-    width: 200px;
+  
+  .banner-nav {
+    width: 50px;
+    height: 50px;
+    font-size: 2rem;
   }
-
-  .movies-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
+  
+  .banner-nav.prev {
+    left: 1rem;
   }
-
-  .movies, .movie-detail, .auth-container {
-    padding: 2rem 1rem;
+  
+  .banner-nav.next {
+    right: 1rem;
   }
 }
 
 @media (max-width: 480px) {
   .hero h1 {
     font-size: 2rem;
+  }
+
+  .hero-icon {
+    font-size: 6rem;
   }
 
   .movies-grid {
@@ -757,29 +860,23 @@ main {
     text-align: center;
     width: 100%;
   }
-}
 
-/* Delete Reviews */
-.delete-btn {
-  background: transparent;
-  border: 1px solid #ff6b6b;
-  color: #ff6b6b;
-  padding: 0.25rem 0.75rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-left: auto; /* Push to the right */
-}
-
-.delete-btn:hover {
-  background: rgba(255, 107, 107, 0.1);
-  border-color: #ff4757;
-  color: #ff4757;
-}
-
-/* Update review-actions to space buttons properly */
-.review-actions {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
+  .banner-slideshow {
+    height: 30vh;
+  }
+  
+  .banner-nav {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+  
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn {
+    min-width: 200px;
+  }
 }
