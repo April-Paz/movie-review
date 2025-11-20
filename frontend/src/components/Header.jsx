@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-function Header() {
+const Header = () => {
   const { user, logout, isAuthenticated } = useAuth();
 
   const handleLogout = () => {
@@ -11,26 +11,38 @@ function Header() {
   return (
     <header className="header">
       <div className="container">
-        <Link to="/" className="logo">🎞️ MovieReviews</Link>
+        <Link to="/" className="logo">
+          🎞️ MovieReviews
+        </Link>
         <nav>
-          <Link to="/" className="nav-link">Home</Link>
-          <Link to="/movies" className="nav-link">Movies</Link>
-          
+          <Link to="/" className="nav-link">
+            Home
+          </Link>
+          <Link to="/movies" className="nav-link">
+            Movies
+          </Link>
+
           {isAuthenticated ? (
             <div className="user-section">
               <span>Welcome, {user?.username}!</span>
-              <button onClick={handleLogout} className="logout-btn">Logout</button>
+              <button onClick={handleLogout} className="logout-btn">
+                Logout
+              </button>
             </div>
           ) : (
             <div className="auth-links">
-              <Link to="/login" className="nav-link">Login</Link>
-              <Link to="/register" className="nav-link">Register</Link>
+              <Link to="/login" className="nav-link">
+                Login
+              </Link>
+              <Link to="/register" className="nav-link">
+                Register
+              </Link>
             </div>
           )}
         </nav>
       </div>
     </header>
   );
-}
+};
 
 export default Header;

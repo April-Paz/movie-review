@@ -1,8 +1,8 @@
-const Movie = require('./Movies');
-const Review = require('./Review');
+// backend/modules/movies/movies-model.js
+const Movie = require('../../shared/models/Movie');
 
 class MovieModel {
-  // Get all movies from local database
+  // Get all movies from local database - (I don;t know if I'm going to use this)
   async getAllMovies(page = 1, limit = 10) {
     try {
       const skip = (page - 1) * limit;
@@ -122,9 +122,6 @@ class MovieModel {
         };
       }
       
-      // Also delete associated reviews
-      await Review.deleteMany({ movieId: id });
-      
       return {
         success: true,
         message: 'Movie deleted successfully'
@@ -182,28 +179,50 @@ class MovieModel {
     }
   }
 
-  // Update movie rating when review is added/updated
-  async updateMovieRating(movieId) {
+  // Sync with TMDB
+  async syncWithTMDB(tmdbId) {
     try {
-      const reviews = await Review.find({ movieId });
+      const TMDbModel = require('../tmdb/tmdb-model');
+      const tmdbResult = await TMDbModel.getMovieDetails(tmdbId);
       
-      if (reviews.length === 0) {
-        await Movie.findByIdAndUpdate(movieId, {
-          averageRating: 0,
-          totalReviews: 0
-        });
-        return;
+      if (!tmdbResult.success) {
+        return tmdbResult;
+      }
+
+      const movie = await Movie.findOrCreateFromTMDB(tmdbResult.data.movie);
+      
+      return {
+        success: true,
+        data: movie
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        status: 500
+      };
+    }
+  }
+
+  // Get or create movie from TMDB ID
+  async getOrCreateMovieByTMDBId(tmdbId) {
+    try {
+      let movie = await Movie.findOne({ tmdbId });
+      
+      if (!movie) {
+        return await this.syncWithTMDB(tmdbId);
       }
       
-      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-      const averageRating = totalRating / reviews.length;
-      
-      await Movie.findByIdAndUpdate(movieId, {
-        averageRating: parseFloat(averageRating.toFixed(1)),
-        totalReviews: reviews.length
-      });
+      return {
+        success: true,
+        data: movie
+      };
     } catch (error) {
-      console.error('Error updating movie rating:', error);
+      return {
+        success: false,
+        error: error.message,
+        status: 500
+      };
     }
   }
 }

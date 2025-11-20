@@ -1,4 +1,5 @@
-const User = require('./User');
+// backend/modules/users/users-model.js
+const User = require('../../shared/models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -93,7 +94,7 @@ class UserModel {
       // Generate JWT token
       const token = jwt.sign(
         { userId: user._id, email: user.email },
-        process.env.JWT_SECRET || 'your-secret-key',
+        process.env.JWT_SECRET,
         { expiresIn: '24h' }
       );
       
@@ -144,7 +145,7 @@ class UserModel {
       // Generate JWT token
       const token = jwt.sign(
         { userId: user._id, email: user.email },
-        process.env.JWT_SECRET || 'your-secret-key',
+        process.env.JWT_SECRET,
         { expiresIn: '24h' }
       );
       

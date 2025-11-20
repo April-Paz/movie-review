@@ -1,44 +1,43 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext();
 
-export function useAuth() {
+export const useAuth = () => {
   return useContext(AuthContext);
-}
+};
 
-export function AuthProvider({ children }) {
+export const AuthProvider = (props) => {
+  const { children } = props;
 
   const getInitialUser = () => {
     try {
-      const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('user');
+      const token = localStorage.getItem("token");
+      const userData = localStorage.getItem("user");
       if (token && userData) {
         return JSON.parse(userData);
       }
     } catch (error) {
-      console.error('Error parsing user data:', error);
-      // Clear invalid data
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      console.error("Error parsing user data:", error);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
     }
     return null;
   };
 
   const [user, setUser] = useState(getInitialUser);
-  // No loading state needed since we initialize directly
   const loading = false;
 
   const login = (userData) => {
     setUser(userData.user);
-    localStorage.setItem('token', userData.token);
-    localStorage.setItem('user', JSON.stringify(userData.user));
+    localStorage.setItem("token", userData.token);
+    localStorage.setItem("user", JSON.stringify(userData.user));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   const value = {
@@ -54,4 +53,4 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   );
-}
+};

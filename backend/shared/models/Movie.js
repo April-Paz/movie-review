@@ -1,3 +1,4 @@
+// backend/shared/models/Movie.js
 const mongoose = require('mongoose');
 
 const movieSchema = new mongoose.Schema({
@@ -55,7 +56,7 @@ const movieSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Static method to find or create from TMDB data
+// find/create from TMDB data
 movieSchema.statics.findOrCreateFromTMDB = async function(tmdbMovie) {
   let movie = await this.findOne({ tmdbId: tmdbMovie.id });
   

@@ -1,16 +1,19 @@
-const mongoose = require('mongoose');
+// backend/shared/middlewares/connect-db.js
+const mongoose = require("mongoose");
 
-const connectDB = async () => {
-    try {
-        await mongoose.connect(process.env.MONGODB_URI, { 
-            dbName: "movie-review" 
-        });
-        console.log("MongoDB Atlas connected successfully!");
-        console.log(`Database: ${mongoose.connection.name}`);
-    } catch (error) {
-        console.error("MongoDB Atlas connection failed:", error.message);
-        process.exit(1);
-    }
-};
+const DB_URL = process.env.DB_URL;
+
+async function connectDB(req, res, next) {
+  try {
+    await mongoose.connect(DB_URL, { 
+      dbName: "movie-review" 
+    });
+    console.log("Database Connected");
+    next();
+  } catch (error) {
+    console.log("Database connection failed");
+    console.log(error);
+  }
+}
 
 module.exports = connectDB;

@@ -1,36 +1,36 @@
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+// frontend/src/pages/Register.jsx 
 
-function Register() {
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
+const Register = () => {
   const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: ''
+    username: "",
+    email: "",
+    password: ""
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/register', {
-        method: 'POST',
+      const response = await fetch("http://localhost:3000/api/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json"
         },
         body: JSON.stringify(formData)
       });
@@ -39,12 +39,12 @@ function Register() {
 
       if (data.success) {
         login(data.data);
-        navigate('/');
+        navigate("/");
       } else {
-        setError(data.error);
+        setError(data.error || "Registration failed");
       }
     } catch {
-      setError('Registration failed. Please try again.');
+      setError("Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -62,9 +62,11 @@ function Register() {
             value={formData.username}
             onChange={handleChange}
             required
+            minLength="3"
+            maxLength="30"
           />
         </div>
-        
+
         <div>
           <label>Email:</label>
           <input
@@ -75,7 +77,7 @@ function Register() {
             required
           />
         </div>
-        
+
         <div>
           <label>Password:</label>
           <input
@@ -91,15 +93,15 @@ function Register() {
         {error && <div className="error">{error}</div>}
 
         <button type="submit" disabled={loading}>
-          {loading ? 'Creating Account...' : 'Register'}
+          {loading ? "Creating Account..." : "Register"}
         </button>
       </form>
-      
-      <p style={{ marginTop: '1rem', textAlign: 'center' }}>
+
+      <p style={{ marginTop: "1rem", textAlign: "center" }}>
         Already have an account? <a href="/login">Login here</a>
       </p>
     </div>
   );
-}
+};
 
 export default Register;

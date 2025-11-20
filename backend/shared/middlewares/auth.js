@@ -1,14 +1,15 @@
+// backend/shared/middlewares/auth.js
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  const token = authHeader && authHeader.split(' ')[1]; 
 
   if (!token) {
     return res.status(401).json({
       success: false,
-      error: 'Access token required'
+      error: 'Token Required'
     });
   }
 
@@ -28,7 +29,7 @@ const authenticateToken = async (req, res, next) => {
   } catch (error) {
     return res.status(403).json({
       success: false,
-      error: 'Invalid or expired token'
+      error: 'Invalid/expired token'
     });
   }
 };
@@ -39,7 +40,7 @@ const requireAdmin = (req, res, next) => {
   } else {
     return res.status(403).json({
       success: false,
-      error: 'Admin access required'
+      error: 'Admin Access Only'
     });
   }
 };

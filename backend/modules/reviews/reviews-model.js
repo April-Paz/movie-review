@@ -1,5 +1,5 @@
-const Review = require('./Review');
-const MovieModel = require('./MovieModel');
+// backend/modules/reviews/reviews-model.js
+const Review = require('../../shared/models/Review');
 
 class ReviewModel {
   // Get all reviews for a movie
@@ -14,10 +14,19 @@ class ReviewModel {
       
       const total = await Review.countDocuments({ movieId });
       
+      // Calculate average rating
+      const averageResult = await Review.aggregate([
+        { $match: { movieId: parseInt(movieId) } },
+        { $group: { _id: null, averageRating: { $avg: '$rating' } } }
+      ]);
+      
+      const averageRating = averageResult.length > 0 ? averageResult[0].averageRating : 0;
+      
       return {
         success: true,
         data: {
           reviews,
+          averageRating: Math.round(averageRating * 10) / 10,
           pagination: {
             page,
             limit,
@@ -40,7 +49,6 @@ class ReviewModel {
     try {
       const skip = (page - 1) * limit;
       const reviews = await Review.find({ userId })
-        .populate('movieId', 'title poster releaseYear')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
@@ -91,9 +99,6 @@ class ReviewModel {
       // Populate user data for response
       await review.populate('userId', 'username avatar');
       
-      // Update movie rating
-      await MovieModel.updateMovieRating(reviewData.movieId);
-      
       return {
         success: true,
         data: review,
@@ -124,9 +129,6 @@ class ReviewModel {
       Object.assign(review, updateData);
       await review.save();
       
-      // Update movie rating
-      await MovieModel.updateMovieRating(review.movieId);
-      
       await review.populate('userId', 'username avatar');
       
       return {
@@ -155,11 +157,7 @@ class ReviewModel {
         };
       }
       
-      const movieId = review.movieId;
       await Review.findByIdAndDelete(id);
-      
-      // Update movie rating
-      await MovieModel.updateMovieRating(movieId);
       
       return {
         success: true,
@@ -178,8 +176,7 @@ class ReviewModel {
   async getReviewById(id) {
     try {
       const review = await Review.findById(id)
-        .populate('userId', 'username avatar')
-        .populate('movieId', 'title poster releaseYear');
+        .populate('userId', 'username avatar');
       
       if (!review) {
         return {
