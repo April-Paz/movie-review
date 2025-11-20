@@ -9,6 +9,7 @@ This project was developed for my CPAN212 course, demonstrating backend developm
 - Phase 1: Project setup & basic Express routes
 - Phase 2: Modular architecture & business logic  
 - Phase 3: MongoDB Atlas integration & database operations
+- Phase 4: Frontend Integration with React
 
 ## Features
 
@@ -58,7 +59,6 @@ Create `.env` file:
 TMDB_API_KEY=your_tmdb_api_key
 MONGODB_URI=your_mongodb_atlas_connection_string
 JWT_SECRET=your_jwt_secret
-PORT=3000
 ```
 
 ### 3. Start Server
@@ -101,7 +101,7 @@ GET http://localhost:3000/api/health
 GET http://localhost:3000/api/tmdb/status
 
 # Register a user
-POST http://localhost:3000/api/auth/register
+POST http://localhost:3000/api/register
 Content-Type: application/json
 
 {
@@ -131,6 +131,15 @@ Content-Type: application/json
 - Implemented Mongoose schemas with validation
 - Added search, sort, and pagination features
 - Set up environment variables for secure configuration
+
+### Phase 4 - Frontend Integration with React
+- Built React frontend with component-based architecture
+- Implemented client-side routing with React Router
+- Integrated with backend API using Axios
+- Added form validation and user feedback systems
+- Created responsive UI for movie browsing and reviews
+- Implemented authentication flow in frontend
+- Added error handling and loading states
 
 ## What I Learned
 
