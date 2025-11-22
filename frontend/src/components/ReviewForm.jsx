@@ -5,11 +5,11 @@ const ReviewForm = (props) => {
   const { movieId, movieTitle, onReviewSubmitted } = props;
   
   const [formData, setFormData] = useState({
-    rating: 5,
+    rating: "5",
     comment: ""
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
   
   const auth = useAuth();
   const { isAuthenticated } = auth;
@@ -28,7 +28,7 @@ const ReviewForm = (props) => {
     }
 
     setLoading(true);
-    setError("");
+    setError(null);
 
     try {
       const token = localStorage.getItem("token");
@@ -45,19 +45,14 @@ const ReviewForm = (props) => {
         })
       });
 
-      const data = await response.json();
+      if (!response.ok) throw new Error('Failed to submit review');
 
-      if (data.success) {
-        setFormData({ rating: 5, comment: "" });
-        setError("");
-        if (onReviewSubmitted) {
-          onReviewSubmitted();
-        }
-      } else {
-        setError(data.error || "Failed to submit review");
+      setFormData({ rating: "5", comment: "" });
+      if (onReviewSubmitted) {
+        onReviewSubmitted();
       }
-    } catch {
-      setError("Error submitting review");
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -65,57 +60,49 @@ const ReviewForm = (props) => {
 
   if (!isAuthenticated) {
     return (
-      <div className="review-form">
-        <div className="login-prompt">
-          <p>
-            Please <a href="/login">log in</a> to write a review for "{movieTitle}"
-          </p>
-        </div>
+      <div>
+        <p>Please log in to write a review for "{movieTitle}"</p>
       </div>
     );
   }
 
   return (
-    <div className="review-form">
-      <h3>Write a Review</h3>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Your Rating:</label>
-          <div className="rating-stars">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <label key={star} className="star-label">
-                <input
-                  type="radio"
-                  name="rating"
-                  value={star}
-                  checked={formData.rating === star}
-                  onChange={handleChange}
-                />
-                <span className="star">⭐</span>
-              </label>
-            ))}
-          </div>
-          <span className="rating-text">({formData.rating}/5)</span>
+    <div style={{display: "flex", flexDirection: "column"}}>
+      <h3>Write a Review for "{movieTitle}"</h3>
+      
+      {error && <div>Error: {error}</div>}
+
+      <form onSubmit={handleSubmit} style={{display: "flex", flexDirection: "column"}}>
+        
+        <div>Rating</div>
+        <div style={{marginBottom: "15px"}}>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <label key={star} style={{marginRight: "10px"}}>
+              <input
+                type="radio"
+                name="rating"
+                value={star}
+                checked={formData.rating === star.toString()}
+                onChange={handleChange}
+                disabled={loading}
+                style={{marginRight: "5px"}}
+              />
+              {star}
+            </label>
+          ))}
         </div>
 
-        <div className="form-group">
-          <label>Your Review:</label>
-          <textarea
-            name="comment"
-            value={formData.comment}
-            onChange={handleChange}
-            placeholder={`Share your thoughts about "${movieTitle}"...`}
-            required
-            minLength="10"
-            maxLength="1000"
-            rows="4"
-          />
-          <div className="char-count">
-            {formData.comment.length}/1000 characters
-          </div>
-        </div>
-
-        {error && <div className="error">{error}</div>}
+        <div>Your Review</div>
+        <textarea
+          name="comment"
+          value={formData.comment}
+          onChange={handleChange}
+          placeholder="Share your thoughts about this movie..."
+          disabled={loading}
+          required
+          rows="4"
+          style={{marginBottom: "15px"}}
+        />
 
         <button type="submit" disabled={loading || formData.comment.length < 10}>
           {loading ? "Submitting..." : "Submit Review"}

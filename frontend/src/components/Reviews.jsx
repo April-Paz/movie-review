@@ -6,31 +6,29 @@ const Reviews = (props) => {
   
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
   
   const auth = useAuth();
   const { user } = auth;
 
   useEffect(() => {
+    async function fetchReviews() {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(`http://localhost:3000/api/reviews/movie/${movieId}`);
+        if (!response.ok) throw new Error('Failed loading reviews');
+        const result = await response.json();
+        setReviews(result.data?.reviews || []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     fetchReviews();
   }, [movieId]);
-
-  const fetchReviews = async () => {
-    try {
-      const response = await fetch(`http://localhost:3000/api/reviews/movie/${movieId}`);
-      const data = await response.json();
-
-      if (data.success) {
-        setReviews(data.data.reviews || []);
-      } else {
-        setError(data.error || "Failed to load reviews");
-      }
-    } catch {
-      setError("Error loading reviews");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDeleteReview = async (reviewId) => {
     if (!window.confirm("Are you sure you want to delete this review?")) {
@@ -46,57 +44,52 @@ const Reviews = (props) => {
         }
       });
 
-      const data = await response.json();
+      if (!response.ok) throw new Error('Failed to delete review');
 
-      if (data.success) {
-        setReviews(reviews.filter((review) => review._id !== reviewId));
-        if (onReviewDeleted) {
-          onReviewDeleted();
-        }
-      } else {
-        setError(data.error || "Failed to delete review");
+      setReviews(reviews.filter((review) => review._id !== reviewId));
+      if (onReviewDeleted) {
+        onReviewDeleted();
       }
-    } catch {
-      setError("Error deleting review");
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  if (loading) return <div className="loading">Loading reviews...</div>;
-  if (error) return <div className="error">{error}</div>;
+  if (loading) return <div>Loading reviews...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="reviews-section">
+    <div>
       <h2>User Reviews ({reviews.length})</h2>
 
       {reviews.length === 0 ? (
-        <div className="no-reviews">
+        <div>
           <p>No reviews yet. Be the first to review "{movieTitle}"!</p>
         </div>
       ) : (
-        <div className="reviews-list">
+        <div>
           {reviews.map((review) => (
-            <div key={review._id} className="review-card">
-              <div className="review-header">
-                <div className="reviewer-info">
-                  <span className="reviewer-name">
+            <div key={review._id} style={{border: "1px solid #ccc", padding: "15px", marginBottom: "15px"}}>
+              <div style={{display: "flex", justifyContent: "space-between", marginBottom: "10px"}}>
+                <div>
+                  <div style={{fontWeight: "bold"}}>
                     {review.userId?.username || "Anonymous"}
-                  </span>
-                  <span className="review-date">
+                  </div>
+                  <div style={{fontSize: "0.9em", color: "#666"}}>
                     {new Date(review.createdAt).toLocaleDateString()}
-                  </span>
+                  </div>
                 </div>
-                <div className="review-rating">
+                <div>
                   {"⭐".repeat(review.rating)}
-                  <span className="rating-number">({review.rating}/5)</span>
+                  <span>({review.rating}/5)</span>
                 </div>
               </div>
-              <div className="review-comment">{review.comment}</div>
-              <div className="review-actions">
+              <div style={{marginBottom: "10px"}}>{review.comment}</div>
+              <div>
                 {user && review.userId && user.id === review.userId._id && (
-                  <button
-                    className="delete-btn"
+                  <button 
                     onClick={() => handleDeleteReview(review._id)}
-                    title="Delete this review"
+                    style={{padding: "5px 10px"}}
                   >
                     Delete
                   </button>

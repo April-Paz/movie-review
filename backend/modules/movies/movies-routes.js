@@ -1,11 +1,11 @@
-// backend/modules/movies/middlewares/movies-routes.js
+// backend/modules/movies/movies-routes.js
 const { Router } = require("express");
 
-const createMovieRules = require("./create-movie-rules");
-const updateMovieRules = require("./update-movie-rules");
-const getMoviesRules = require("./get-movies-rules");
-const MovieModel = require("../movies-model"); 
-const { authenticateToken, requireAdmin } = require("../../../shared/middlewares/auth");
+const createMovieRules = require("./middlewares/create-movie-rules");
+const updateMovieRules = require("./middlewares/update-movie-rules");
+const getMoviesRules = require("./middlewares/get-movies-rules");
+const MovieModel = require("./movies-model"); 
+const { authenticateToken, requireAdmin } = require("../../shared/middlewares/auth");
 
 const moviesRoute = Router();
 

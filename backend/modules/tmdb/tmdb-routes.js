@@ -1,11 +1,11 @@
-// backend/modules/tmdb/middlewares/tmdb-routes.js
+// backend/modules/tmdb/tmdb-routes.js
 const { Router } = require("express");
 
-const getPopularRules = require("./get-popular-rules");
-const searchMoviesRules = require("./search-movies-rules");
-const getMovieRules = require("./get-movie-rules");
-const getTrendingRules = require("./get-trending-rules");
-const TMDbModel = require("../tmdb-model");
+const getPopularRules = require("./middlewares/get-popular-rules");
+const searchMoviesRules = require("./middlewares/search-movies-rules");
+const getMovieRules = require("./middlewares/get-movie-rules");
+const getTrendingRules = require("./middlewares/get-trending-rules");
+const TMDbModel = require("./tmdb-model");
 
 const tmdbRoute = Router();
 

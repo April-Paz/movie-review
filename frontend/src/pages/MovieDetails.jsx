@@ -7,22 +7,20 @@ const MovieDetails = () => {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
   const [refreshReviews, setRefreshReviews] = useState(0);
 
   useEffect(() => {
     async function fetchMovie() {
+      setLoading(true);
+      setError(null);
       try {
         const response = await fetch(`http://localhost:3000/api/tmdb/movies/${id}`);
-        const data = await response.json();
-
-        if (data.success) {
-          setMovie(data.data.movie);
-        } else {
-          setError(data.error || "Movie not found");
-        }
-      } catch (error) {
-        setError("Error fetching movie: " + error.message);
+        if (!response.ok) throw new Error('Failed loading movie details');
+        const result = await response.json();
+        setMovie(result.data?.movie || null);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -39,78 +37,74 @@ const MovieDetails = () => {
     setRefreshReviews((prev) => prev + 1);
   };
 
-  if (loading) return <div className="loading">Loading movie details...</div>;
-  if (error) return <div className="error">{error}</div>;
-  if (!movie) return <div className="error">Movie not found</div>;
+  if (loading) return <div>Loading movie details...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!movie) return <div>Movie not found</div>;
 
   return (
-    <div className="movie-detail">
-      <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
+    <div style={{ padding: "20px" }}>
+      <div style={{ display: "flex", gap: "20px", marginBottom: "30px" }}>
         {movie.poster_path && (
           <img
             src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
             alt={movie.title}
             style={{
               width: "300px",
-              borderRadius: "12px",
-              boxShadow: "0 8px 25px rgba(0,0,0,0.5)"
+              borderRadius: "8px"
             }}
           />
         )}
-        <div style={{ flex: 1, minWidth: "300px" }}>
+        <div style={{ flex: 1 }}>
           <h1>{movie.title}</h1>
           {movie.tagline && (
-            <p style={{ fontStyle: "italic", color: "#FFD700" }}>"{movie.tagline}"</p>
+            <p style={{ fontStyle: "italic", marginBottom: "15px" }}>"{movie.tagline}"</p>
           )}
 
-          <p>
+          <div style={{ marginBottom: "10px" }}>
             <strong>Released:</strong> {movie.release_date || "Unknown"}
-          </p>
-          <p>
-            <strong>Rating:</strong> ⭐{" "}
-            {movie.vote_average
-              ? `${movie.vote_average}/10 (${movie.vote_count} votes)`
-              : "No ratings yet"}
-          </p>
-          <p>
+          </div>
+          <div style={{ marginBottom: "10px" }}>
+            <strong>Rating:</strong> ⭐ {movie.vote_average ? `${movie.vote_average}/10` : "No rating"}
+          </div>
+          <div style={{ marginBottom: "10px" }}>
             <strong>Runtime:</strong> {movie.runtime ? `${movie.runtime} minutes` : "Unknown"}
-          </p>
+          </div>
 
           {movie.genres && movie.genres.length > 0 && (
-            <p>
+            <div style={{ marginBottom: "10px" }}>
               <strong>Genres:</strong> {movie.genres.map((g) => g.name).join(", ")}
-            </p>
+            </div>
           )}
 
           {movie.overview && (
-            <div style={{ marginTop: "1.5rem" }}>
+            <div style={{ marginTop: "20px" }}>
               <strong>Overview:</strong>
-              <p style={{ marginTop: "0.5rem", lineHeight: "1.6" }}>{movie.overview}</p>
+              <p style={{ marginTop: "10px" }}>{movie.overview}</p>
             </div>
           )}
         </div>
       </div>
 
-      <div style={{ marginTop: "3rem" }}>
+      <div style={{ marginBottom: "30px" }}>
         <ReviewForm
           movieId={id}
           movieTitle={movie.title}
           onReviewSubmitted={handleReviewSubmitted}
         />
-
-        <div style={{ marginTop: "2rem" }}>
-          <Reviews
-            key={refreshReviews}
-            movieId={id}
-            movieTitle={movie.title}
-            onReviewDeleted={handleReviewDeleted}
-          />
-        </div>
       </div>
 
-      <div style={{ marginTop: "2rem" }}>
-        <Link to="/movies" className="btn secondary">
-          ← Back to Movies
+      <div style={{ marginBottom: "30px" }}>
+        <Reviews
+          key={refreshReviews}
+          movieId={id}
+          movieTitle={movie.title}
+          onReviewDeleted={handleReviewDeleted}
+        />
+      </div>
+
+      <div>
+        <Link to="/movies" style={{ display: "inline-block", padding: "8px 16px", backgroundColor: "#6c757d", color: "white", textDecoration: "none", borderRadius: "4px" }}>
+          Back to Movies
         </Link>
       </div>
     </div>

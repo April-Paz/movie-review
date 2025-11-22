@@ -1,28 +1,24 @@
-// frontend/src/pages/Home.jsx
 import { useState, useEffect } from "react";
 
 const Home = () => {
   const [popularMovies, setPopularMovies] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchPopularMovies() {
+      setLoading(true);
+      setError(null);
       try {
         const response = await fetch("http://localhost:3000/api/tmdb/movies/popular");
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-
-        if (data.success) {
-          setPopularMovies(data.data.movies.slice(0, 3));
-        } else {
-          console.error("TMDB API error:", data.error);
-        }
-      } catch (error) {
-        console.error("Error fetching popular movies:", error);
+        if (!response.ok) throw new Error('Failed loading popular movies');
+        const result = await response.json();
+        setPopularMovies(result.data?.movies?.slice(0, 3) || []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -47,34 +43,99 @@ const Home = () => {
     setCurrentSlide((prev) => (prev - 1 + popularMovies.length) % popularMovies.length);
   };
 
+  if (loading) return <div style={{padding: "40px", textAlign: "center"}}>Loading...</div>;
+  if (error) return <div style={{padding: "40px", textAlign: "center"}}>Error: {error}</div>;
+
   return (
-    <div className="home">
+    <div style={{minHeight: "100vh", position: "relative"}}>
       {popularMovies.length > 0 && (
-        <div className="banner-slideshow">
-          <div className="banner-container">
+        <div style={{width: "100%", height: "60vh", position: "relative", overflow: "hidden"}}>
+          <div style={{width: "100%", height: "100%", position: "relative"}}>
             {popularMovies.map((movie, index) => (
               <div
                 key={movie.id}
-                className={`banner-slide ${index === currentSlide ? "active" : ""}`}
                 style={{
-                  backgroundImage: `url(https://image.tmdb.org/t/p/w1280${movie.backdrop_path})`
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  backgroundImage: `url(https://image.tmdb.org/t/p/w1280${movie.backdrop_path})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                  opacity: index === currentSlide ? 1 : 0,
+                  transition: "opacity 1s ease-in-out"
                 }}
               />
             ))}
 
-            <button className="banner-nav prev" onClick={prevSlide}>
+            <button 
+              onClick={prevSlide}
+              style={{
+                position: "absolute",
+                top: "50%",
+                transform: "translateY(-50%)",
+                left: "20px",
+                background: "rgba(255, 215, 0, 0.3)",
+                border: "none",
+                color: "white",
+                fontSize: "2.5rem",
+                width: "60px",
+                height: "60px",
+                borderRadius: "50%",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}
+            >
               ‹
             </button>
-            <button className="banner-nav next" onClick={nextSlide}>
+            <button 
+              onClick={nextSlide}
+              style={{
+                position: "absolute",
+                top: "50%",
+                transform: "translateY(-50%)",
+                right: "20px",
+                background: "rgba(255, 215, 0, 0.3)",
+                border: "none",
+                color: "white",
+                fontSize: "2.5rem",
+                width: "60px",
+                height: "60px",
+                borderRadius: "50%",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}
+            >
               ›
             </button>
 
-            <div className="banner-indicators">
+            <div style={{
+              position: "absolute",
+              bottom: "20px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              gap: "8px"
+            }}>
               {popularMovies.map((_, index) => (
                 <button
                   key={index}
-                  className={`banner-indicator ${index === currentSlide ? "active" : ""}`}
                   onClick={() => setCurrentSlide(index)}
+                  style={{
+                    width: "12px",
+                    height: "12px",
+                    borderRadius: "50%",
+                    border: "2px solid #FFD700",
+                    background: index === currentSlide ? "#FFD700" : "transparent",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease"
+                  }}
                 />
               ))}
             </div>
@@ -82,19 +143,46 @@ const Home = () => {
         </div>
       )}
 
-      <section className="hero">
-        <div className="hero-content">
-          <div className="hero-text">
-            <h1>Welcome to MovieReviews</h1>
-            <p>Everyone's Guide to the Movies</p>
-            <div className="hero-buttons">
-              <a href="/movies" className="btn primary">
-                Browse Movies
-              </a>
-              <a href="/register" className="btn secondary">
-                Get Started
-              </a>
-            </div>
+      <section style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "40vh",
+        padding: "40px 20px",
+        textAlign: "center"
+      }}>
+        <div>
+          <h1 style={{fontSize: "3rem", marginBottom: "1rem", color: "#FFD700"}}>Welcome to MovieReviews</h1>
+          <p style={{fontSize: "1.3rem", marginBottom: "2rem", opacity: 0.9}}>Everyone's Guide to the Movies</p>
+          <div style={{display: "flex", gap: "1.5rem", justifyContent: "center", flexWrap: "wrap"}}>
+            <a 
+              href="/movies" 
+              style={{
+                padding: "12px 32px",
+                background: "#FFD700",
+                color: "#000000",
+                textDecoration: "none",
+                borderRadius: "6px",
+                fontWeight: "600",
+                border: "2px solid #FFD700"
+              }}
+            >
+              Browse Movies
+            </a>
+            <a 
+              href="/register" 
+              style={{
+                padding: "12px 32px",
+                background: "transparent",
+                color: "#FFD700",
+                textDecoration: "none",
+                borderRadius: "6px",
+                fontWeight: "600",
+                border: "2px solid #FFD700"
+              }}
+            >
+              Get Started
+            </a>
           </div>
         </div>
       </section>

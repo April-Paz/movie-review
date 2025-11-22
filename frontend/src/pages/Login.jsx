@@ -7,7 +7,7 @@ const Login = () => {
     email: "",
     password: ""
   });
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
@@ -21,11 +21,9 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError(null);
 
     try {
-      console.log("Logging in:", { email: formData.email });
-
       const response = await fetch("http://localhost:3000/api/login", {
         method: "POST",
         headers: {
@@ -34,58 +32,53 @@ const Login = () => {
         body: JSON.stringify(formData)
       });
 
-      const data = await response.json();
-      console.log("Login response:", data);
+      if (!response.ok) throw new Error('Login failed');
+      const result = await response.json();
 
-      if (data.success) {
-        console.log("Login successful:", data.data);
-        login(data.data);
-        navigate("/");
-      } else {
-        setError(data.error || "Login failed");
-      }
+      login(result.data);
+      navigate("/");
     } catch (err) {
-      console.error("Login error:", err);
-      setError("Login failed.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-container">
-      <h2>Account Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
+    <div style={{display: "flex", flexDirection: "column", maxWidth: "400px", margin: "0 auto", padding: "20px"}}>
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit} style={{display: "flex", flexDirection: "column"}}>
+        
+        <div>Email</div>
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          disabled={loading}
+          required
+          style={{marginBottom: "15px"}}
+        />
 
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        <div>Password</div>
+        <input
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          disabled={loading}
+          required
+          style={{marginBottom: "15px"}}
+        />
 
-        {error && <div className="error">{error}</div>}
+        {error && <div style={{marginBottom: "15px"}}>Error: {error}</div>}
 
         <button type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
 
-      <p style={{ marginTop: "1rem", textAlign: "center" }}>
+      <p style={{marginTop: "15px", textAlign: "center"}}>
         Don't have an account? <a href="/register">Register here</a>
       </p>
     </div>

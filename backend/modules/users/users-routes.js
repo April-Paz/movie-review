@@ -1,11 +1,11 @@
-// backend/modules/users/middlewares/users-routes.js
+// backend/modules/users/users-routes.js
 const { Router } = require("express");
 
-const createUserRules = require("./create-user-rules");
-const updateUserRules = require("./update-user-rules");
-const loginRules = require("./login-rules");
-const UserModel = require("../users-model");
-const { authenticateToken, requireAdmin } = require("../../../shared/middlewares/auth");
+const createUserRules = require("./middlewares/create-user-rules");
+const updateUserRules = require("./middlewares/update-user-rules");
+const loginRules = require("./middlewares/login-rules");
+const UserModel = require("./users-model");
+const { authenticateToken, requireAdmin } = require("../../shared/middlewares/auth");
 
 const usersRoute = Router();
 

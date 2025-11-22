@@ -1,10 +1,10 @@
-// backend/modules/reviews/middlewares/reviews-routes.js
+// backend/modules/reviews/reviews-routes.js
 const { Router } = require("express");
 
-const createReviewRules = require("./create-review-rules"); 
-const updateReviewRules = require("./update-review-rules.js"); 
-const ReviewModel = require("../reviews-model");
-const { authenticateToken } = require("../../../shared/middlewares/auth");
+const createReviewRules = require("./middlewares/create-review-rules.js"); 
+const updateReviewRules = require("./middlewares/update-review-rules.js"); 
+const ReviewModel = require("./reviews-model.js");
+const { authenticateToken } = require("../../shared/middlewares/auth.js");
 
 const reviewsRoute = Router();
 
