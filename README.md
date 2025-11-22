@@ -20,8 +20,8 @@ This project was developed for my CPAN212 course, demonstrating backend developm
 
 ### Movie Management
 - Browse popular movies from TMDB API
-- Search movies by title, genre, or director
-- Local movie database with custom entries
+- Search movies by title, genre, or director (W.I.P)
+- Local movie database with custom entries (W.I.P)
 
 ### Review System
 - Write and edit movie reviews (1-5 stars)
@@ -38,11 +38,18 @@ This project was developed for my CPAN212 course, demonstrating backend developm
 
 ```
 backend/
-  models/           # Mongoose schemas
-  models/          # Business logic layer
-  routes/          # Express routers
-  middleware/      # Custom middleware
-  shared/          # Shared middleware
+  modules/                
+    middlewares/     
+  shared/
+    middlewares/
+      models/         
+
+frontend/
+  src/
+    components/ 
+  pages/ 
+    context/ 
+  App.jsx # Main app component
 ```
 
 ## Installation & Setup
@@ -51,13 +58,19 @@ backend/
 ```bash
 cd backend
 npm install
+npm start
+
+npm create vite@latest frontend -- --template react
+cd frontend
+npm install
+npm install axios react-router-dom
 ```
 
 ### 2. Environment Configuration
 Create `.env` file:
 ```
 TMDB_API_KEY=your_tmdb_api_key
-MONGODB_URI=your_mongodb_atlas_connection_string
+DB_URL=your_mongodb_atlas_connection_string
 JWT_SECRET=your_jwt_secret
 ```
 
@@ -117,6 +130,8 @@ Content-Type: application/json
 - Authentication: JWT, bcryptjs
 - Validation: express-validator
 - External API: The Movie Database (TMDB)
+- Frontend: React, React Router, Axios
+- Styling: Custom CSS
 
 ### Phase 2 - Modular Architecture
 - Separated business logic into model classes (MovieModel, UserModel, ReviewModel)
@@ -129,15 +144,16 @@ Content-Type: application/json
 - Migrated from local MongoDB to cloud-based MongoDB Atlas
 - Created database connection middleware
 - Implemented Mongoose schemas with validation
-- Added search, sort, and pagination features
+- Added search, sort, and pagination features (W.I.P)
 - Set up environment variables for secure configuration
+- Replaced JSON file storage with MongoDB operations
 
 ### Phase 4 - Frontend Integration with React
 - Built React frontend with component-based architecture
 - Implemented client-side routing with React Router
 - Integrated with backend API using Axios
 - Added form validation and user feedback systems
-- Created responsive UI for movie browsing and reviews
+- Created responsive UI for movie browsing and reviews (W.I.P)
 - Implemented authentication flow in frontend
 - Added error handling and loading states
 
@@ -154,11 +170,9 @@ Through this project, I gained experience in:
 - Cloud database deployment with MongoDB Atlas
 
 ## Future Enhancements
-
-- Frontend React application
 - Movie recommendation engine
 - Social features
 - Advanced search filters
 - Admin dashboard
 
----
+
