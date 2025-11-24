@@ -1,16 +1,16 @@
 // backend/server.js
-// Import and configure the 'dotenv' package at the top of server.js to load environment variables.
+
 require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./shared/middlewares/connect-db");
 
-// Import routes
-const { moviesRoute } = require("./modules/movies/middlewares/movies-routes");
-const { reviewsRoute } = require("./modules/reviews/middlewares/reviews-routes");
-const { usersRoute } = require("./modules/users/middlewares/users-routes");
-const { tmdbRoute } = require("./modules/tmdb/middlewares/tmdb-routes");
+
+const { moviesRoute } = require("./modules/movies/movies-routes");
+const { reviewsRoute } = require("./modules/reviews/reviews-routes");
+const { usersRoute } = require("./modules/users/users-routes");
+const { tmdbRoute } = require("./modules/tmdb/tmdb-routes");
 
 const port = process.env.PORT || 3000;
 const hostname = process.env.HOSTNAME || "localhost";
@@ -23,11 +23,9 @@ server.use(cors({
   credentials: true
 }));
 
-// Built-in middlewares to parse request body in application-level
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 
-// Add the connectDB middleware in application-level, before defining routes.
 server.use(connectDB);
 
 // Health check route
@@ -39,22 +37,21 @@ server.get("/health", (req, res) => {
   });
 });
 
-// Mount all the routes with /api prefix
+
 server.use("/api", moviesRoute);
 server.use("/api", reviewsRoute);
 server.use("/api", usersRoute);
 server.use("/api", tmdbRoute);
 
-// Error-handling middleware to logs the error for debugging.
 server.use((error, req, res, next) => {
   console.log(error);
   res.status(500).json({ 
     success: false,
-    error: "Oops! Internal server error!" 
+    error: "Internal server error!" 
   });
 });
 
-// Middleware to handle route not found error.
+
 server.use((req, res, next) => {
   res.status(404).json({ 
     success: false,

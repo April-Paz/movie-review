@@ -97,7 +97,7 @@ const ReviewForm = (props) => {
           name="comment"
           value={formData.comment}
           onChange={handleChange}
-          placeholder="Share your thoughts about this movie..."
+          placeholder="Write your review here..."
           disabled={loading}
           required
           rows="4"

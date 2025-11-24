@@ -9,7 +9,7 @@ const { authenticateToken, requireAdmin } = require("../../shared/middlewares/au
 
 const usersRoute = Router();
 
-// POST /api/register - Register new user
+// POST - Register new user
 usersRoute.post("/register", createUserRules, async (req, res) => {
   const result = await UserModel.createUser(req.body);
   
@@ -20,7 +20,7 @@ usersRoute.post("/register", createUserRules, async (req, res) => {
   res.status(result.status).json(result);
 });
 
-// POST /api/login - User login
+// POST - User login
 usersRoute.post("/login", loginRules, async (req, res) => {
   const { email, password } = req.body;
   const result = await UserModel.loginUser(email, password);
@@ -32,7 +32,7 @@ usersRoute.post("/login", loginRules, async (req, res) => {
   res.json(result);
 });
 
-// GET /api/users - Get all users (admin only)
+// GET - Get all users (admin only)
 usersRoute.get("/users", authenticateToken, requireAdmin, async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
   const result = await UserModel.getAllUsers(parseInt(page), parseInt(limit));
@@ -44,7 +44,7 @@ usersRoute.get("/users", authenticateToken, requireAdmin, async (req, res) => {
   res.json(result);
 });
 
-// GET /api/users/:id - Get user by ID
+// GET - Get user by ID
 usersRoute.get("/users/:id", authenticateToken, async (req, res) => {
   // Users can only view their own profile unless they're admin
   if (req.user.role !== 'admin' && req.user._id.toString() !== req.params.id) {
@@ -63,7 +63,7 @@ usersRoute.get("/users/:id", authenticateToken, async (req, res) => {
   res.json(result);
 });
 
-// PUT /api/users/:id - Update user
+// PUT  - Update user
 usersRoute.put("/users/:id", updateUserRules, authenticateToken, async (req, res) => {
   // Users can only update their own profile unless they're admin
   if (req.user.role !== 'admin' && req.user._id.toString() !== req.params.id) {
@@ -82,7 +82,7 @@ usersRoute.put("/users/:id", updateUserRules, authenticateToken, async (req, res
   res.json(result);
 });
 
-// DELETE /api/users/:id - Delete user (admin only)
+// DELETE - Delete user (admin only)
 usersRoute.delete("/users/:id", authenticateToken, requireAdmin, async (req, res) => {
   const result = await UserModel.deleteUser(req.params.id);
   
@@ -93,7 +93,7 @@ usersRoute.delete("/users/:id", authenticateToken, requireAdmin, async (req, res
   res.json(result);
 });
 
-// GET /api/profile - Get current user profile
+// GET - Get current user profile
 usersRoute.get("/profile", authenticateToken, async (req, res) => {
   const result = await UserModel.getUserById(req.user._id);
   

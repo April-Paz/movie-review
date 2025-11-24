@@ -1,4 +1,5 @@
 // backend/modules/reviews/reviews-routes.js
+
 const { Router } = require("express");
 
 const createReviewRules = require("./middlewares/create-review-rules.js"); 
@@ -8,7 +9,7 @@ const { authenticateToken } = require("../../shared/middlewares/auth.js");
 
 const reviewsRoute = Router();
 
-// GET /api/reviews/movie/:movieId - Get reviews for a movie
+// GET - Get reviews for a movie
 reviewsRoute.get("/reviews/movie/:movieId", async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
   const result = await ReviewModel.getReviewsByMovie(
@@ -24,7 +25,7 @@ reviewsRoute.get("/reviews/movie/:movieId", async (req, res) => {
   res.json(result);
 });
 
-// GET /api/reviews/user/:userId - Get reviews by user
+// GET - Get reviews by user
 reviewsRoute.get("/reviews/user/:userId", async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
   const result = await ReviewModel.getReviewsByUser(
@@ -40,7 +41,7 @@ reviewsRoute.get("/reviews/user/:userId", async (req, res) => {
   res.json(result);
 });
 
-// GET /api/reviews/:id - Get single review
+// GET - Get single review
 reviewsRoute.get("/reviews/:id", async (req, res) => {
   const result = await ReviewModel.getReviewById(req.params.id);
   
@@ -51,7 +52,7 @@ reviewsRoute.get("/reviews/:id", async (req, res) => {
   res.json(result);
 });
 
-// POST /api/reviews - Create new review
+// POST - Create new review
 reviewsRoute.post("/reviews", createReviewRules, authenticateToken, async (req, res) => {
   const reviewData = {
     ...req.body,
@@ -66,7 +67,7 @@ reviewsRoute.post("/reviews", createReviewRules, authenticateToken, async (req, 
   res.status(result.status).json(result);
 });
 
-// PUT /api/reviews/:id - Update review
+// PUT - Update review
 reviewsRoute.put("/reviews/:id", updateReviewRules, authenticateToken, async (req, res) => {
   const result = await ReviewModel.updateReview(req.params.id, req.user._id, req.body);
   
@@ -77,7 +78,7 @@ reviewsRoute.put("/reviews/:id", updateReviewRules, authenticateToken, async (re
   res.json(result);
 });
 
-// DELETE /api/reviews/:id - Delete review
+// DELETE - Delete review (/api/reviews/:id)
 reviewsRoute.delete("/reviews/:id", authenticateToken, async (req, res) => {
   const result = await ReviewModel.deleteReview(req.params.id, req.user._id);
   
