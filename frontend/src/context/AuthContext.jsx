@@ -40,13 +40,8 @@ export const AuthProvider = (props) => {
     localStorage.removeItem("user");
   };
 
-  const value = {
-    user,
-    login,
-    logout,
-    loading,
-    isAuthenticated: !!user
-  };
+  const value = { user, login, logout, loading,
+    isAuthenticated: !!user };
 
   return (
     <AuthContext.Provider value={value}>

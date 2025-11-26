@@ -51,24 +51,24 @@ class TMDbModel {
         }
     }
 
-    // async searchMovies(query, page = 1) {
-    //     try {
-    //         const data = await fetchFromTMDB('/search/movie', { 
-    //             query: query.trim(),
-    //             page: page
-    //         });
+    async searchMovies(query, page = 1) {
+        try {
+            const data = await fetchFromTMDB('/search/movie', { 
+                query: query.trim(),
+                page: page
+            });
             
-    //         return {
-    //             success: true,
-    //             data: { query: query, page: data.page, totalPages: data.total_pages, movies: data.results }
-    //         };
-    //     } catch (error) {
-    //         return {
-    //             success: false,
-    //             error: error.message
-    //         };
-    //     }
-    // }
+            return {
+                success: true,
+                data: { query: query, page: data.page, totalPages: data.total_pages, movies: data.results }
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
 
     async getMovieDetails(movieId) {
         try {
@@ -105,20 +105,20 @@ class TMDbModel {
     //     }
     // }
 
-    // async getGenres() {
-    //     try {
-    //         const data = await fetchFromTMDB('/genre/movie/list');
-    //         return {
-    //             success: true,
-    //             data: {genres: data.genres}
-    //         };
-    //     } catch (error) {
-    //         return {
-    //             success: false,
-    //             error: error.message
-    //         };
-    //     }
-    // }
+    async getGenres() {
+        try {
+            const data = await fetchFromTMDB('/genre/movie/list');
+            return {
+                success: true,
+                data: {genres: data.genres}
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
 
     // async getTrendingMovies(timeWindow = 'week') {
     //     try {

@@ -38,11 +38,7 @@ const ReviewForm = (props) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({
-          movieId: parseInt(movieId),
-          rating: parseInt(formData.rating),
-          comment: formData.comment
-        })
+        body: JSON.stringify({ movieId: parseInt(movieId), rating: parseInt(formData.rating), comment: formData.comment })
       });
 
       if (!response.ok) throw new Error('Failed to submit review');
@@ -61,7 +57,7 @@ const ReviewForm = (props) => {
   if (!isAuthenticated) {
     return (
       <div>
-        <p>Please log in to write a review for "{movieTitle}"</p>
+        <p>Log in and write your review for "{movieTitle}"</p>
       </div>
     );
   }
@@ -87,7 +83,7 @@ const ReviewForm = (props) => {
                 disabled={loading}
                 style={{marginRight: "5px"}}
               />
-              {star}
+              {star}  
             </label>
           ))}
         </div>
