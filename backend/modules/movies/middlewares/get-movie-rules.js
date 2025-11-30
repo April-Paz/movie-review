@@ -1,4 +1,3 @@
-// backend/modules/movies/middlewares/get-movies-rules.js
 const { query } = require("express-validator");
 const checkValidation = require('../../../shared/middlewares/check-validation');
 

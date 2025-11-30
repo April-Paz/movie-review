@@ -1,11 +1,8 @@
-// backend/server.js
-
 require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
-const connectDB = require("./shared/middlewares/connect-db");
-
+const mongoose = require("mongoose");
 
 const { moviesRoute } = require("./modules/movies/movies-routes");
 const { reviewsRoute } = require("./modules/reviews/reviews-routes");
@@ -17,6 +14,21 @@ const hostname = process.env.HOSTNAME || "localhost";
 
 const server = express();
 
+// Connect to database
+async function connectDB() {
+  try {
+    await mongoose.connect(process.env.DB_URL, { dbName: "movie-review" });
+    console.log("Database Connected");
+  } catch (error) {
+    console.log("Database connection failed");
+    console.log(error);
+    process.exit(1); 
+  }
+}
+
+// Initialize database connection
+connectDB();
+
 // CORS configuration
 server.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
@@ -26,8 +38,6 @@ server.use(cors({
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 
-server.use(connectDB);
-
 // Health check route
 server.get("/health", (req, res) => {
   res.json({ 
@@ -36,7 +46,6 @@ server.get("/health", (req, res) => {
     timestamp: new Date().toISOString() 
   });
 });
-
 
 server.use("/api", moviesRoute);
 server.use("/api", reviewsRoute);
@@ -50,7 +59,6 @@ server.use((error, req, res, next) => {
     error: "Internal server error!" 
   });
 });
-
 
 server.use((req, res, next) => {
   res.status(404).json({ 

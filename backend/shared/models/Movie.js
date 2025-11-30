@@ -1,4 +1,3 @@
-// backend/shared/models/Movie.js
 const mongoose = require('mongoose');
 
 const movieSchema = new mongoose.Schema({

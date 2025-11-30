@@ -100,7 +100,7 @@ const ReviewForm = (props) => {
           style={{marginBottom: "15px"}}
         />
 
-        <button type="submit" disabled={loading || formData.comment.length < 10}>
+        <button type="submit" disabled={loading || formData.comment.length < 5}>
           {loading ? "Submitting..." : "Submit Review"}
         </button>
       </form>

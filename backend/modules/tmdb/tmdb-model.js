@@ -1,4 +1,3 @@
-// backend/modules/tmdb/tmdb-model.js
 const https = require("https");
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY;

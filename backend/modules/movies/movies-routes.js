@@ -1,4 +1,3 @@
-// backend/modules/movies/movies-routes.js
 const { Router } = require("express");
 
 const createMovieRules = require("./middlewares/create-movie-rules");

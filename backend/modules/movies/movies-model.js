@@ -1,4 +1,3 @@
-// backend/modules/movies/movies-model.js
 const Movie = require('../../shared/models/Movie');
 
 class MovieModel {

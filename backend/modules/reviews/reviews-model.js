@@ -1,4 +1,3 @@
-// backend/modules/reviews/reviews-model.js
 const Review = require('../../shared/models/Review');
 
 class ReviewModel {
@@ -36,6 +35,7 @@ class ReviewModel {
         }
       };
     } catch (error) {
+      console.error("Error in getReviewsByMovie:", error);
       return {
         success: false,
         error: error.message,
@@ -68,6 +68,7 @@ class ReviewModel {
         }
       };
     } catch (error) {
+      console.error("Error in getReviewsByUser:", error);
       return {
         success: false,
         error: error.message,
@@ -105,6 +106,7 @@ class ReviewModel {
         status: 201
       };
     } catch (error) {
+      console.error("Error creating review:", error);
       return {
         success: false,
         error: error.message,
@@ -136,6 +138,7 @@ class ReviewModel {
         data: review
       };
     } catch (error) {
+      console.error("Error updating review:", error);
       return {
         success: false,
         error: error.message,
@@ -164,6 +167,7 @@ class ReviewModel {
         message: 'Review deleted successfully'
       };
     } catch (error) {
+      console.error("Error deleting review:", error);
       return {
         success: false,
         error: error.message,
@@ -191,6 +195,7 @@ class ReviewModel {
         data: review
       };
     } catch (error) {
+      console.error("Error getting review by ID:", error);
       return {
         success: false,
         error: error.message,

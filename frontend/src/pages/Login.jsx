@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
@@ -10,7 +9,6 @@ const Login = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -32,11 +30,13 @@ const Login = () => {
         body: JSON.stringify(formData)
       });
 
-      if (!response.ok) throw new Error('Login failed');
       const result = await response.json();
 
-      login(result.data);
-      navigate("/");
+      if (!response.ok) throw new Error(result.error || 'Login failed');
+
+      // Store email for OTP verification and navigate to OTP page
+      localStorage.setItem('pendingEmail', formData.email);
+      navigate('/verify-otp', { state: { email: formData.email } });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -71,10 +71,10 @@ const Login = () => {
           style={{marginBottom: "15px"}}
         />
 
-        {error && <div style={{marginBottom: "15px"}}>Error: {error}</div>}
+        {error && <div style={{marginBottom: "15px", color: "red"}}>Error: {error}</div>}
 
         <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
+          {loading ? "Sending OTP..." : "Login"}
         </button>
       </form>
 

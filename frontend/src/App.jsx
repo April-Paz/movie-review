@@ -6,6 +6,7 @@ import Movies from "./pages/Movies";
 import MovieDetails from "./pages/MovieDetails";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import OTPVerification from "./pages/OTPVerification"; // ADD THIS IMPORT
 import "./App.css";
 
 const App = () => {
@@ -21,6 +22,7 @@ const App = () => {
               <Route path="/movie/:id" element={<MovieDetails />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/verify-otp" element={<OTPVerification />} /> {/* ADD THIS ROUTE */}
             </Routes>
           </main>
         </div>

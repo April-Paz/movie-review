@@ -1,5 +1,3 @@
-// backend/modules/reviews/reviews-routes.js
-
 const { Router } = require("express");
 
 const createReviewRules = require("./middlewares/create-review-rules.js"); 
@@ -58,13 +56,22 @@ reviewsRoute.post("/reviews", createReviewRules, authenticateToken, async (req, 
     ...req.body,
     userId: req.user._id
   };
-  const result = await ReviewModel.createReview(reviewData);
   
-  if (!result.success) {
-    return res.status(result.status).json(result);
+  try {
+    const result = await ReviewModel.createReview(reviewData);
+    
+    if (!result.success) {
+      return res.status(result.status).json(result);
+    }
+    
+    res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error in review route:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error"
+    });
   }
-  
-  res.status(result.status).json(result);
 });
 
 // PUT - Update review

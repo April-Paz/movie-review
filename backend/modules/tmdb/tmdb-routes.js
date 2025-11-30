@@ -1,4 +1,3 @@
-// backend/modules/tmdb/tmdb-routes.js
 const { Router } = require("express");
 
 const getPopularRules = require("./middlewares/get-popular-rules");

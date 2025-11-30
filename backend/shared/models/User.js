@@ -1,5 +1,5 @@
-// backend/shared/models/User.js
 const mongoose = require('mongoose');
+const { encodePassword } = require('../password-utils');
 
 const userSchema = new mongoose.Schema({
   username: { 
@@ -37,6 +37,14 @@ const userSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true
+});
+
+// Hash password before saving
+userSchema.pre('save', function(next) {
+  if (this.isModified('password')) {
+    this.password = encodePassword(this.password);
+  }
+  next();
 });
 
 module.exports = mongoose.model('User', userSchema);

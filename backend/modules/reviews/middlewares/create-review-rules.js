@@ -1,4 +1,3 @@
-// backend/modules/reviews/middlewares/create-review-rules.js
 const { body } = require("express-validator");
 const checkValidation = require('../../../shared/middlewares/check-validation');
 
@@ -18,12 +17,12 @@ const createReviewRules = [
   body("comment")
     .isString()
     .withMessage("Comment must be a string")
-    .isLength({ min: 10, max: 1000 })
-    .withMessage("Comment must be between 10 and 1000 characters")
+    .isLength({ min: 5, max: 1000 })
+    .withMessage("Comment must be between 5 and 1000 characters")
     .notEmpty()
     .withMessage("Comment is required"),
 
-  checkValidation,
+  checkValidation
 ];
 
 module.exports = createReviewRules;

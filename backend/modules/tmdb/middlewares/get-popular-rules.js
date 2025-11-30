@@ -1,4 +1,3 @@
-// backend/modules/tmdb/middlewares/get-popular-rules.js
 const { query } = require("express-validator");
 const checkValidation = require('../../../shared/middlewares/check-validation');
 

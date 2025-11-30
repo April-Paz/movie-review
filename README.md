@@ -10,6 +10,7 @@ This project was developed for my CPAN212 course, demonstrating backend developm
 - Phase 2: Modular architecture & business logic  
 - Phase 3: MongoDB Atlas integration & database operations
 - Phase 4: Frontend Integration with React
+- Phase 5: Authentication & Authorization with MFA
 
 ## Features
 
@@ -69,9 +70,11 @@ npm install axios react-router-dom
 ### 2. Environment Configuration
 Create `.env` file:
 ```
-TMDB_API_KEY=your_tmdb_api_key
-DB_URL=your_mongodb_atlas_connection_string
-JWT_SECRET=your_jwt_secret
+TMDB_API_KEY=
+DB_URL=
+JWT_SECRET=
+GOOGLE_EMAIL=
+GOOGLE_PASSWORD=
 ```
 
 ### 3. Start Server
@@ -83,8 +86,13 @@ Visit: http://localhost:3000
 ## API Endpoints
 
 ### Authentication
+- POST /api/login - User login (Step 1: Send OTP)
+- POST /api/verify-login - Verify OTP (Step 2: Get JWT)
+- POST /api/resend-otp - Resend OTP email
 - POST `/api/auth/register` - User registration
 - POST `/api/auth/login` - User login
+- GET /api/profile - Get current user profile
+- GET /api/users - Get all users (Admin only)
 
 ### Movies
 - GET `/api/movies` - Get all movies
@@ -122,12 +130,40 @@ Content-Type: application/json
 "email": "test@example.com",
 "password": "password123"
 }
+
+# Test MFA Login Flow
+# Step 1: Send credentials and get OTP
+POST http://localhost:3000/api/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+# Step 2: Verify OTP and get JWT token
+POST http://localhost:3000/api/verify-login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "otp": "123456"
+}
+
+# Test protected routes with JWT
+GET http://localhost:3000/api/profile
+Authorization: Bearer YOUR_JWT_TOKEN
+
+# Test admin-only routes
+GET http://localhost:3000/api/users
+Authorization: Bearer ADMIN_JWT_TOKEN
 ```
 ## Technology Stack
 
 - Backend: Node.js, Express.js
 - Database: MongoDB Atlas, Mongoose
-- Authentication: JWT, bcryptjs
+- Authentication: JWT, bcryptjs, OTP-based MFA
+- Email Service: Nodemailer with Gmail
 - Validation: express-validator
 - External API: The Movie Database (TMDB)
 - Frontend: React, React Router, Axios
@@ -157,6 +193,17 @@ Content-Type: application/json
 - Implemented authentication flow in frontend
 - Added error handling and loading states
 
+### Phase 5 - Authentication & Authorization with MFA
+- Implemented JWT-based authentication with secure token management
+- Added Email-based Multi-Factor Authentication (MFA) using OTP
+- Created Role-Based Access Control (RBAC) system with admin and user roles
+- Enhanced security with password hashing and token expiration
+- Built OTP management system with automatic expiration (5 minutes)
+- Implemented protected routes with role-based middleware
+- Added comprehensive error handling for authentication failures
+- Created secure email service for OTP delivery using Nodemailer
+- Enhanced frontend authentication flow with OTP verification page
+
 ## What I Learned
 
 Through this project, I gained experience in:
@@ -165,6 +212,9 @@ Through this project, I gained experience in:
 - MongoDB schema design and relationships
 - RESTful API development
 - JWT authentication implementation
+- Multi-Factor Authentication (MFA) systems
+- Role-Based Access Control (RBAC)
+- Email service integration
 - Error handling and validation
 - External API integration
 - Cloud database deployment with MongoDB Atlas

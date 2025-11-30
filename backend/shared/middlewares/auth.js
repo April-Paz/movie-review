@@ -1,4 +1,3 @@
-// backend/shared/middlewares/auth.js
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
@@ -15,7 +14,18 @@ const authenticateToken = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-    const user = await User.findById(decoded.userId).select('-password');
+    
+    // Handle both possible token structures
+    const userId = decoded.userId || decoded._id;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid token structure'
+      });
+    }
+
+    const user = await User.findById(userId).select('-password');
     
     if (!user) {
       return res.status(401).json({
@@ -27,6 +37,7 @@ const authenticateToken = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
+    console.error("Authentication error:", error.message);
     return res.status(403).json({
       success: false,
       error: 'Invalid/expired token'

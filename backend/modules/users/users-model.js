@@ -1,4 +1,3 @@
-// backend/modules/users/users-model.js
 const User = require('../../shared/models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -149,7 +148,7 @@ class UserModel {
   // Update user
   async updateUser(id, updateData) {
     try {
-      // Don't allow password updates through this method
+
       if (updateData.password) {
         delete updateData.password;
       }
