@@ -2,7 +2,7 @@ const { Router } = require("express");
 
 const createMovieRules = require("./middlewares/create-movie-rules");
 const updateMovieRules = require("./middlewares/update-movie-rules");
-const getMoviesRules = require("./middlewares/get-movies-rules");
+const getMoviesRules = require("./middlewares/get-movie-rules");
 const MovieModel = require("./movies-model"); 
 const { authenticateToken, requireAdmin } = require("../../shared/middlewares/auth");
 
