@@ -117,7 +117,7 @@ const OTPVerification = () => {
 
       if (!response.ok) throw new Error(result.error || 'Failed to resend OTP');
 
-      // Restart countdown
+      //Restart countdown
       setCountdown(30);
       const timer = setInterval(() => {
         setCountdown(prev => {
