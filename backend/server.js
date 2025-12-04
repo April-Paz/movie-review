@@ -32,8 +32,11 @@ connectDB();
 
 // CORS configuration
 server.use(cors({
-  origin: [process.env.FRONTEND_URL || 'http://localhost:5173',
-  'movie-review-eight-iota.vercel.app' 
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:5173',
+    'https://movie-review-eight-iota.vercel.app',  // ADD https://
+    'https://movie-review-eight-iota.vercel.app/', // Also try with trailing slash
+    'http://movie-review-eight-iota.vercel.app'    // And http version
   ],
   credentials: true
 }));
