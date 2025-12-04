@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 
 const ReviewForm = (props) => {
   const { movieId, movieTitle, onReviewSubmitted } = props;
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   
   const [formData, setFormData] = useState({
     rating: "5",
@@ -32,7 +33,7 @@ const ReviewForm = (props) => {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:3000/api/reviews", {
+      const response = await fetch(`${API_URL}/api/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

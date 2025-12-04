@@ -7,6 +7,7 @@ const SearchBar = () => {
   const [results, setResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -16,7 +17,7 @@ const SearchBar = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/tmdb/movies/search?q=${encodeURIComponent(query)}`
+        `${API_URL}/api/tmdb/movies/search?q=${encodeURIComponent(query)}`
       );
       
       if (!response.ok) throw new Error('Search failed');

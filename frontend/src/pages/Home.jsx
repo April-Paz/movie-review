@@ -5,13 +5,14 @@ const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   useEffect(() => {
     async function fetchPopularMovies() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch("http://localhost:3000/api/tmdb/movies/popular");
+        const response = await fetch(`${API_URL}/api/tmdb/movies/popular`);
         if (!response.ok) throw new Error('Failed loading popular movies');
         const result = await response.json();
         setPopularMovies(result.data?.movies?.slice(0, 3) || []);

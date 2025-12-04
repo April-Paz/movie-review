@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -22,7 +23,7 @@ const Login = () => {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:3000/api/login", {
+      const response = await fetch(`${API_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const OTPVerification = () => {
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -67,7 +68,7 @@ const OTPVerification = () => {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:3000/api/verify-login", {
+      const response = await fetch(`${API_URL}/api/verify-login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -104,7 +105,7 @@ const OTPVerification = () => {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:3000/api/resend-otp", {
+      const response = await fetch(`${API_URL}/api/resend-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

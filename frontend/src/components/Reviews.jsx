@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 
 const Reviews = (props) => {
   const { movieId, movieTitle, onReviewDeleted } = props;
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +17,7 @@ const Reviews = (props) => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`http://localhost:3000/api/reviews/movie/${movieId}`);
+        const response = await fetch(`${API_URL}/api/reviews/movie/${movieId}`);
         if (!response.ok) throw new Error('Failed loading reviews');
         const result = await response.json();
         setReviews(result.data?.reviews || []);
@@ -37,7 +38,7 @@ const Reviews = (props) => {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3000/api/reviews/${reviewId}`, {
+      const response = await fetch(`${API_URL}/api/reviews/${reviewId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`

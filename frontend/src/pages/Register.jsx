@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const Register = () => {
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -25,7 +26,7 @@ const Register = () => {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:3000/api/register", {
+      const response = await fetch(`${API_URL}/api/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

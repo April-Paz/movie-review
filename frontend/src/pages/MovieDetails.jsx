@@ -4,6 +4,7 @@ import Reviews from "../components/Reviews";
 import ReviewForm from "../components/ReviewForm";
 
 const MovieDetails = () => {
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; 
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,7 +16,7 @@ const MovieDetails = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`http://localhost:3000/api/tmdb/movies/${id}`);
+        const response = await fetch(`${API_URL}/api/tmdb/movies/${id}`);
         if (!response.ok) throw new Error('Failed loading movie details');
         const result = await response.json();
         setMovie(result.data?.movie || null);

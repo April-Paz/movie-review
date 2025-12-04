@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const Movies = () => {
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,7 +12,7 @@ const Movies = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch("http://localhost:3000/api/tmdb/movies/popular");
+        const response = await fetch(`${API_URL}/api/tmdb/movies/popular`);
         if (!response.ok) throw new Error('Failed loading movies');
         const result = await response.json();
         setMovies(result.data?.movies || []);
