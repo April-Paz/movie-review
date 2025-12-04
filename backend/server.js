@@ -10,7 +10,8 @@ const { usersRoute } = require("./modules/users/users-routes");
 const { tmdbRoute } = require("./modules/tmdb/tmdb-routes");
 
 const port = process.env.PORT || 3000;
-const hostname = process.env.HOSTNAME || "localhost";
+// const hostname = process.env.HOSTNAME || "localhost";
+const hostname = "0.0.0.0";
 
 const server = express();
 

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import SearchBar from "./SearchBar";
 
 const Header = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -14,6 +15,11 @@ const Header = () => {
         <Link to="/" className="logo">
           🎞️ MovieReviews
         </Link>
+
+        <div style={{ flex: 1, maxWidth: "500px", margin: "0 20px" }}>
+          <SearchBar />
+        </div>
+
         <nav>
           <Link to="/" className="nav-link">
             Home

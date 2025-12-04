@@ -1,5 +1,3 @@
-// W.I.P - not working as of now
-
 const { query } = require("express-validator");
 const checkValidation = require('../../../shared/middlewares/check-validation');
 

@@ -87,22 +87,22 @@ class TMDbModel {
         }
     }
 
-    // async getSimilarMovies(movieId) {
-    //     try {
-    //         const data = await fetchFromTMDB(`/movie/${movieId}/similar`);
-    //         return {
-    //             success: true,
-    //             data: {
-    //                 similarMovies: data.results
-    //             }
-    //         };
-    //     } catch (error) {
-    //         return {
-    //             success: false,
-    //             error: error.message
-    //         };
-    //     }
-    // }
+    async getSimilarMovies(movieId) {
+        try {
+            const data = await fetchFromTMDB(`/movie/${movieId}/similar`);
+            return {
+                success: true,
+                data: {
+                    similarMovies: data.results
+                }
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
 
     async getGenres() {
         try {
@@ -119,20 +119,20 @@ class TMDbModel {
         }
     }
 
-    // async getTrendingMovies(timeWindow = 'week') {
-    //     try {
-    //         const data = await fetchFromTMDB(`/trending/movie/${timeWindow}`);
-    //         return {
-    //             success: true,
-    //             data: {movies: data.results}
-    //         };
-    //     } catch (error) {
-    //         return {
-    //             success: false,
-    //             error: error.message
-    //         };
-    //     }
-    // }
+    async getTrendingMovies(timeWindow = 'week') {
+        try {
+            const data = await fetchFromTMDB(`/trending/movie/${timeWindow}`);
+            return {
+                success: true,
+                data: {movies: data.results}
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
 
     async getAPIStatus() {
         try {
