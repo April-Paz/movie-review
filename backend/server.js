@@ -32,7 +32,9 @@ connectDB();
 
 // CORS configuration
 server.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: [process.env.FRONTEND_URL || 'http://localhost:5173',
+  'https://movie-reviews.vercel.app' // Your Vercel URL (you'll update this)
+  ],
   credentials: true
 }));
 
