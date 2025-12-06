@@ -99,7 +99,7 @@ usersRoute.post("/login", async (req, res) => {
     const emailSent = await sendEmail(
       email,
       "Your Login OTP - MovieReviews",
-      `Your OTP is: <strong>${otp}</strong>`
+      `Your OTP is: <strong>${otp}</strong><br>It expires in 5 minutes.`
     );
     
     if (!emailSent) {
