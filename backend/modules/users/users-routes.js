@@ -73,9 +73,15 @@ usersRoute.post("/login", async (req, res) => {
     const { email, password } = req.body;
     
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ 
+      email: { $regex: new RegExp('^' + email.trim() + '$', 'i') } 
+    });
     if (!user) {
-      return res.status(400).json({ error: "User not found" });
+      console.log('User not found for email:', email);
+      return res.status(400).json({ 
+        success: false,
+        error: "User not found. Please check your email or register first." 
+      });
     }
     
     // Check password
