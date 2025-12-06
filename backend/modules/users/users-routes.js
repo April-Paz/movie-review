@@ -70,55 +70,32 @@ usersRoute.post("/register", createUserRules, checkValidation, async (req, res) 
 // POST - User login - Send OTP
 usersRoute.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
-    
-    // Find user
-    const user = await User.findOne({ 
-      email: { $regex: new RegExp('^' + email.trim() + '$', 'i') } 
-    });
+    let { email, password } = req.body;
+    email = email.trim().toLowerCase();
+
+    const user = await User.findOne({ email });
     if (!user) {
-      console.log('User not found for email:', email);
       return res.status(400).json({ 
         success: false,
         error: "User not found. Please check your email or register first." 
       });
     }
-    
-    // Check password
+
     const validPassword = matchPassword(password, user.password);
     if (!validPassword) {
       return res.status(400).json({ error: "Invalid password" });
     }
-    
-    // Generate OTP
+
     const otp = randomNumberOfNDigits(6);
-    
-    // Save OTP (delete old one first)
+
     await OTPModel.deleteOne({ account: user._id });
-    await OTPModel.create({ 
-      account: user._id, 
-      email,
-      otp: otp.toString() 
-    });
-    
-    // Send OTP email
-    const emailSent = await sendEmail(
-      email,
-      "Your Login OTP - MovieReviews",
-      `Your OTP is: <strong>${otp}</strong><br>It expires in 5 minutes.`
-    );
-    
-    if (!emailSent) {
-      return res.status(500).json({ error: "Failed to send OTP" });
-    }
-    
-    res.json({ 
-      success: true, 
-      message: "OTP sent to your email" 
-    });
-    
+    await OTPModel.create({ account: user._id, email, otp: otp.toString() });
+
+    await sendEmail(email, "Your Login OTP - MovieReviews", `Your OTP is: <strong>${otp}</strong><br>It expires in 5 minutes.`);
+
+    res.json({ success: true, message: "OTP sent to your email" });
+
   } catch (error) {
-    console.error("Login error:", error);
     res.status(500).json({ error: "Login failed" });
   }
 });
@@ -128,26 +105,21 @@ usersRoute.post("/login", async (req, res) => {
 // POST - Verify OTP - Get JWT
 usersRoute.post("/verify-login", verifyLoginRules, checkValidation, async (req, res) => {
   try {
-    const { email, otp } = req.body;
+    let { email, otp } = req.body;
+    email = email.trim().toLowerCase();
+
     const foundUser = await User.findOne({ email });
-    
     if (!foundUser) {
-      return res.status(404).json({
-        success: false,
-        error: `User with ${email} doesn't exist`,
-      });
+      return res.status(404).json({ success: false, error: `User with ${email} doesn't exist` });
     }
-    
+
     const savedOTP = await OTPModel.findOne({ 
       account: foundUser._id, 
-      otp: otp.toString() 
+      otp: otp.toString()
     });
-    
+
     if (!savedOTP) {
-      return res.status(401).json({ 
-        success: false,
-        error: "Invalid or expired OTP" 
-      });
+      return res.status(401).json({ success: false, error: "Invalid or expired OTP" });
     }
     
     // Check OTP expiration (5 minutes)
