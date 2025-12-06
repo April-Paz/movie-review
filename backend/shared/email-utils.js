@@ -1,34 +1,44 @@
-// backend/shared/email-utils.js
-const sendEmail = require("./send-utils");
+const { google } = require("googleapis");
 
-async function sendOTPEmail(email, otp) {
-  const subject = "Your Login OTP - MovieReviews";
-  
-  const htmlMessage = `
-    <div style="font-family: Arial, sans-serif; padding: 20px;">
-      <h2 style="color: #FFD700;">🎬 MovieReviews Login OTP</h2>
-      <p>Your one-time password is:</p>
-      <div style="font-size: 32px; font-weight: bold; color: #FFD700; 
-                  background: #000; padding: 15px; text-align: center; 
-                  margin: 20px 0; letter-spacing: 5px;">
-        ${otp}
-      </div>
-      <p><strong>This OTP will expire in 5 minutes.</strong></p>
-      <p>If you didn't request this, please ignore this email.</p>
-      <hr style="border: none; border-top: 1px solid #eee;">
-      <p style="color: #999; font-size: 12px;">
-        MovieReviews &copy; ${new Date().getFullYear()}
-      </p>
-    </div>
-  `;
+const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const REFRESH_TOKEN = process.env.GOOGLE_REFRESH_TOKEN;
+const SENDER_EMAIL = process.env.GOOGLE_SENDER_EMAIL;
 
+const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET);
+oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+
+const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
+
+async function sendEmail(to, subject, message) {
   try {
-    const result = await sendEmail(email, subject, htmlMessage);
-    return result;
+    const rawEmail = [
+      `From: ${SENDER_EMAIL}`,
+      `To: ${to}`,
+      `Subject: ${subject}`,
+      "Content-Type: text/html; charset=UTF-8",
+      "",
+      `<p>${message}</p>`,
+    ];
+    const composedEmail = rawEmail.join("\n");
+    const encodedEmail = Buffer.from(composedEmail)
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+    await gmail.users.messages.send({
+      userId: "me",
+      requestBody: {
+        raw: encodedEmail,
+      },
+    });
+
+    return true;
   } catch (error) {
-    console.error("Failed to send OTP email:", error.message);
+    console.log(`Error sending email: `, error);
     return false;
   }
 }
 
-module.exports = sendOTPEmail;
+module.exports = sendEmail;
