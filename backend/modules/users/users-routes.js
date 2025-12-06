@@ -17,14 +17,13 @@ const { authenticateToken, requireAdmin } = require("../../shared/middlewares/au
 const usersRoute = Router();
 
 // POST - Register new user
+// POST - Register new user
 usersRoute.post("/register", createUserRules, checkValidation, async (req, res) => {
   try {
     const newUser = req.body;
 
-    // Normalize email
     newUser.email = newUser.email.trim().toLowerCase();
 
-    // Check if user already exists (email OR username)
     const existingUser = await User.findOne({
       $or: [
         { email: newUser.email },
@@ -38,33 +37,18 @@ usersRoute.post("/register", createUserRules, checkValidation, async (req, res) 
         error: `User with email ${newUser.email} or username ${newUser.username} already exists`,
       });
     }
-
-    // HASH PASSWORD BEFORE SAVING
-    const bcrypt = require("bcryptjs");
-    newUser.password = await bcrypt.hash(newUser.password, 12);
-
-    // Save new user
+    
     const addedUser = await User.create(newUser);
-
-    if (!addedUser) {
-      return res.status(500).json({
-        success: false,
-        error: "Oops! User couldn't be added!",
-      });
-    }
-
-    const user = {
-      _id: addedUser._id,
-      username: addedUser.username,
-      email: addedUser.email,
-      role: addedUser.role,
-      avatar: addedUser.avatar,
-      joinDate: addedUser.joinDate
-    };
 
     res.status(201).json({
       success: true,
-      data: user,
+      data: {
+        _id: addedUser._id,
+        username: addedUser.username,
+        email: addedUser.email,
+        role: addedUser.role,
+        avatar: addedUser.avatar
+      },
       message: "User registered successfully"
     });
 
