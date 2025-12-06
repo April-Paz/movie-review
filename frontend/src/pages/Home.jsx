@@ -15,7 +15,7 @@ const Home = () => {
         const response = await fetch(`${API_URL}/api/tmdb/movies/popular`);
         if (!response.ok) throw new Error('Failed loading popular movies');
         const result = await response.json();
-        setPopularMovies(result.data?.movies?.slice(0, 3) || []);
+        setPopularMovies(result.data?.movies || []);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -24,7 +24,7 @@ const Home = () => {
     }
 
     fetchPopularMovies();
-  }, []);
+  }, [API_URL]);
 
   useEffect(() => {
     if (popularMovies.length > 0) {
@@ -50,7 +50,7 @@ const Home = () => {
   return (
     <div style={{minHeight: "100vh", position: "relative"}}>
       {popularMovies.length > 0 && (
-        <div style={{width: "100%", height: "60vh", position: "relative", overflow: "hidden"}}>
+        <div style={{width: "100%", height: "100vh", position: "relative", overflow: "hidden"}}>
           <div style={{width: "100%", height: "100%", position: "relative"}}>
             {popularMovies.map((movie, index) => (
               <div
@@ -68,9 +68,43 @@ const Home = () => {
                   opacity: index === currentSlide ? 1 : 0,
                   transition: "opacity 1s ease-in-out"
                 }}
-              />
+              >
+                {/* Movie info overlay */}
+                <div style={{
+                  position: "absolute",
+                  bottom: "0",
+                  left: "0",
+                  right: "0",
+                  background: "linear-gradient(transparent, rgba(0,0,0,0.8))",
+                  padding: "40px",
+                  color: "white"
+                }}>
+                  <h1 style={{fontSize: "3rem", marginBottom: "1rem"}}>{movie.title}</h1>
+                  <p style={{fontSize: "1.2rem", marginBottom: "1rem", maxWidth: "600px"}}>
+                    {movie.overview?.substring(0, 200)}...
+                  </p>
+                  <div style={{display: "flex", alignItems: "center", gap: "20px"}}>
+                    <span style={{fontSize: "1.5rem"}}>⭐ {movie.vote_average?.toFixed(1)}/10</span>
+                    <span>{movie.release_date?.substring(0, 4)}</span>
+                    <a 
+                      href={`/movie/${movie.id}`}
+                      style={{
+                        padding: "10px 20px",
+                        background: "#FFD700",
+                        color: "#000000",
+                        textDecoration: "none",
+                        borderRadius: "6px",
+                        fontWeight: "600"
+                      }}
+                    >
+                      View Details
+                    </a>
+                  </div>
+                </div>
+              </div>
             ))}
 
+            {/* Navigation buttons */}
             <button 
               onClick={prevSlide}
               style={{
@@ -88,7 +122,8 @@ const Home = () => {
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center"
+                justifyContent: "center",
+                zIndex: 10
               }}
             >
               ‹
@@ -110,21 +145,24 @@ const Home = () => {
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center"
+                justifyContent: "center",
+                zIndex: 10
               }}
             >
               ›
             </button>
 
+            {/* Slide indicators */}
             <div style={{
               position: "absolute",
-              bottom: "20px",
+              bottom: "120px",
               left: "50%",
               transform: "translateX(-50%)",
               display: "flex",
-              gap: "8px"
+              gap: "8px",
+              zIndex: 10
             }}>
-              {popularMovies.map((_, index) => (
+              {popularMovies.slice(0, 10).map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentSlide(index)}
@@ -143,50 +181,6 @@ const Home = () => {
           </div>
         </div>
       )}
-
-      <section style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "40vh",
-        padding: "40px 20px",
-        textAlign: "center"
-      }}>
-        <div>
-          <h1 style={{fontSize: "3rem", marginBottom: "1rem", color: "#FFD700"}}>Welcome to MovieReviews</h1>
-          <p style={{fontSize: "1.3rem", marginBottom: "2rem", opacity: 0.9}}>Everyone's Guide to the Movies</p>
-          <div style={{display: "flex", gap: "1.5rem", justifyContent: "center", flexWrap: "wrap"}}>
-            <a 
-              href="/movies" 
-              style={{
-                padding: "12px 32px",
-                background: "#FFD700",
-                color: "#000000",
-                textDecoration: "none",
-                borderRadius: "6px",
-                fontWeight: "600",
-                border: "2px solid #FFD700"
-              }}
-            >
-              Browse Movies
-            </a>
-            <a 
-              href="/register" 
-              style={{
-                padding: "12px 32px",
-                background: "transparent",
-                color: "#FFD700",
-                textDecoration: "none",
-                borderRadius: "6px",
-                fontWeight: "600",
-                border: "2px solid #FFD700"
-              }}
-            >
-              Get Started
-            </a>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };
