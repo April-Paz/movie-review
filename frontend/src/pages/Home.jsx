@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom"; 
 
 const Home = () => {
   const [popularMovies, setPopularMovies] = useState([]);
@@ -156,8 +157,9 @@ const Home = () => {
           <h1 style={{fontSize: "3rem", marginBottom: "1rem", color: "#FFD700"}}>Welcome to MovieReviews</h1>
           <p style={{fontSize: "1.3rem", marginBottom: "2rem", opacity: 0.9}}>Everyone's Guide to the Movies</p>
           <div style={{display: "flex", gap: "1.5rem", justifyContent: "center", flexWrap: "wrap"}}>
-            <a 
-              href="/movies" 
+
+            <Link 
+              to="/movies" 
               style={{
                 padding: "12px 32px",
                 background: "#FFD700",
@@ -169,7 +171,7 @@ const Home = () => {
               }}
             >
               Browse Movies
-            </a>
+            </Link>
           </div>
         </div>
       </section>
