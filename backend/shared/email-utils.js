@@ -1,33 +1,34 @@
-const nodemailer = require("nodemailer");
+const sendEmail = require("./send-utils");
 
-const transporter = nodemailer.createTransport({  // FIXED: createTransport not createTransporter
-  service: "gmail",
-  auth: {
-    user: process.env.GOOGLE_EMAIL,
-    pass: process.env.GOOGLE_PASSWORD,
-  },
-});
-
-async function sendEmail(to, subject, message) {
-  if (!to) throw new Error("Email is required");
-  if (!subject) throw new Error("Subject is required");
-  if (!message) throw new Error("Message is required");
+/**
+ * @param {string} email - Recipient email
+ * @param {string} otp - 6-digit OTP
+ * @returns {Promise<boolean>} - Success status
+ */
+async function sendOTPEmail(email, otp) {
+  const subject = "Your Login OTP - MovieReviews";
+  
+  const plainMessage = `
+    MovieReviews Login OTP
+    
+    Your one-time password is: ${otp}
+    
+    This OTP will expire in 5 minutes.
+    
+    If you didn't request this, please ignore this email.
+    
+    ---
+    MovieReviews © ${new Date().getFullYear()}
+  `;
 
   try {
-    const info = await transporter.sendMail({
-      from: process.env.GOOGLE_EMAIL,
-      to: to,
-      subject: subject,
-      text: message,
-      html: message.replace(/\n/g, '<br>')
-    });
-    
-    console.log("Email sent successfully:", info.response);
-    return info;
+    const htmlMessage = plainMessage.replace(/\n/g, '<br>');
+    const result = await sendEmail(email, subject, htmlMessage);
+    return result;
   } catch (error) {
-    console.error("Email sending failed:", error);
-    throw error;
+    console.error("Failed to send OTP email:", error.message);
+    return false;
   }
 }
 
-module.exports = sendEmail;
+module.exports = sendOTPEmail;

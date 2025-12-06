@@ -9,6 +9,7 @@ const checkValidation = require("../../shared/middlewares/check-validation");
 
 const User = require("../../shared/models/User"); 
 const OTPModel = require("../../shared/models/OTP");
+const sendOTPEmail = require("../../shared/email-utils");
 const { matchPassword } = require("../../shared/password-utils");
 const { encodeToken } = require("../../shared/jwt-utils");
 const sendEmail = require("../../shared/email-utils");
@@ -96,11 +97,19 @@ usersRoute.post("/login", loginRules, checkValidation, async (req, res) => {
     });
     
     // Send OTP email
-    await sendEmail(
-      email, 
-      "Your Login OTP - MovieReviews", 
-      `Your one-time password is: ${otp}. It expires in 5 minutes.`
-    );
+    // await sendEmail(
+    //   email, 
+    //   "Your Login OTP - MovieReviews", 
+    //   `Your one-time password is: ${otp}. It expires in 5 minutes.`
+    // );
+    const emailSent = await sendOTPEmail(email, otp);
+
+    if (!emailSent) {
+      return res.status(500).json({
+        success: false,
+       error: "Failed to send OTP email. Please try again."
+     });
+    }
     
     res.json({ 
       success: true,
