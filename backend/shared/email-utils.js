@@ -1,16 +1,9 @@
 // backend/shared/email-utils.js
 const sendEmail = require("./send-utils");
 
-/**
- * Send OTP email with formatted HTML
- * @param {string} email - Recipient email
- * @param {string} otp - 6-digit OTP
- * @returns {Promise<boolean>} - Success status
- */
 async function sendOTPEmail(email, otp) {
   const subject = "Your Login OTP - MovieReviews";
   
-  // Simple HTML email with OTP
   const htmlMessage = `
     <div style="font-family: Arial, sans-serif; padding: 20px;">
       <h2 style="color: #FFD700;">🎬 MovieReviews Login OTP</h2>

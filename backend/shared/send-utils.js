@@ -1,10 +1,10 @@
+// backend/shared/send-utils.js
 const { google } = require("googleapis");
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.GOOGLE_REFRESH_TOKEN;
 const SENDER_EMAIL = process.env.GOOGLE_SENDER_EMAIL;
-
 
 const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET);
 oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
@@ -18,7 +18,7 @@ async function sendEmail(to, subject, message) {
       `To: ${to}`,
       `Subject: ${subject}`,
       "Content-Type: text/html; charset=UTF-8",
-      "", 
+      "",
       `${message}`,
     ];
     const composedEmail = rawEmail.join("\n");
@@ -35,9 +35,10 @@ async function sendEmail(to, subject, message) {
       },
     });
 
+    console.log(`✅ Email sent to ${to}`);
     return true;
   } catch (error) {
-    console.error(`Error sending email: `, error);
+    console.error(`❌ Error sending email: `, error.message);
     return false;
   }
 }
