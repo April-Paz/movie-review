@@ -17,34 +17,40 @@ const Login = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
 
-    try {
-      const response = await fetch(`${API_URL}/api/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(formData)
-      });
+  try {
+    console.log("Sending login request to:", `${API_URL}/api/login`);
+    const response = await fetch(`${API_URL}/api/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(formData)
+    });
 
-      const result = await response.json();
+    console.log("Response status:", response.status);
+    const result = await response.json();
+    console.log("Response data:", result);
 
-      if (!response.ok) throw new Error(result.error || 'Login failed');
-
-      // Store email for OTP verification and navigate to OTP page
-      localStorage.setItem('pendingEmail', formData.email);
-      navigate('/verify-otp', { state: { email: formData.email } });
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      console.error("Login failed:", result);
+      throw new Error(result.error || 'Login failed');
     }
-  };
 
+    // Store email for OTP verification and navigate to OTP page
+    localStorage.setItem('pendingEmail', formData.email);
+    navigate('/verify-otp', { state: { email: formData.email } });
+  } catch (err) {
+    console.error("Login error details:", err);
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div style={{display: "flex", flexDirection: "column", maxWidth: "400px", margin: "0 auto", padding: "20px"}}>
       <h2>Login</h2>
