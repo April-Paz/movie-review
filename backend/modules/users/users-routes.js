@@ -104,23 +104,9 @@ usersRoute.post("/login", loginRules, checkValidation, async (req, res) => {
     // Send OTP email using Gmail API
     const emailSent = await sendEmail(
       email, 
-      "Your Login OTP - MovieReviews", 
-      `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #FFD700;">MovieReviews Login OTP</h2>
-        <p>Hello ${foundUser.username},</p>
-        <p>Your one-time password for login is:</p>
-        <div style="background: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #333; margin: 20px 0; border-radius: 5px;">
-          ${otp}
-        </div>
-        <p>This OTP will expire in <strong>5 minutes</strong>.</p>
-        <p>If you didn't request this login, please ignore this email.</p>
-        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-        <p style="font-size: 12px; color: #777;">
-          This is an automated message from MovieReviews. Please do not reply to this email.
-        </p>
-      </div>`
+      "Your Login OTP - MovieReviews", `Your one-time password is: <strong>${otp}</strong><br>It expires in 5 minutes.`
     );
-    
+      
     if (!emailSent) {
       console.error("Failed to send OTP email to:", email);
       return res.status(500).json({
@@ -256,21 +242,8 @@ usersRoute.post("/resend-otp", async (req, res) => {
     // Send OTP email using Gmail API
     const emailSent = await sendEmail(
       email, 
-      "Your New Login OTP - MovieReviews", 
-      `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #FFD700;">New MovieReviews Login OTP</h2>
-        <p>Hello ${foundUser.username},</p>
-        <p>Your new one-time password for login is:</p>
-        <div style="background: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #333; margin: 20px 0; border-radius: 5px;">
-          ${otp}
-        </div>
-        <p>This OTP will expire in <strong>5 minutes</strong>.</p>
-        <p>If you didn't request this login, please ignore this email.</p>
-        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-        <p style="font-size: 12px; color: #777;">
-          This is an automated message from MovieReviews. Please do not reply to this email.
-        </p>
-      </div>`
+        "Your New Login OTP - MovieReviews", 
+        `Your new one-time password is: <strong>${otp}</strong><br>It expires in 5 minutes.`
     );
     
     if (!emailSent) {
