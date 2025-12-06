@@ -6,7 +6,7 @@ import Movies from "./pages/Movies";
 import MovieDetails from "./pages/MovieDetails";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import OTPVerification from "./pages/OTPVerification"; // ADD THIS IMPORT
+import OTPVerification from "./pages/OTPVerification"; 
 import "./App.css";
 
 const App = () => {
