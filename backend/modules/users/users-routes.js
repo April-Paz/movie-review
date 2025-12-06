@@ -20,31 +20,40 @@ const usersRoute = Router();
 usersRoute.post("/register", createUserRules, checkValidation, async (req, res) => {
   try {
     const newUser = req.body;
-    
-    // Check if user already exists (both email AND username)
+
+    // Normalize email
+    newUser.email = newUser.email.trim().toLowerCase();
+
+    // Check if user already exists (email OR username)
     const existingUser = await User.findOne({
       $or: [
         { email: newUser.email },
         { username: newUser.username }
       ]
     });
-    
+
     if (existingUser) {
       return res.status(400).json({
         success: false,
         error: `User with email ${newUser.email} or username ${newUser.username} already exists`,
       });
     }
-    
+
+    // HASH PASSWORD BEFORE SAVING
+    const bcrypt = require("bcryptjs");
+    newUser.password = await bcrypt.hash(newUser.password, 12);
+
+    // Save new user
     const addedUser = await User.create(newUser);
+
     if (!addedUser) {
       return res.status(500).json({
         success: false,
         error: "Oops! User couldn't be added!",
       });
     }
-    
-    const user = { 
+
+    const user = {
       _id: addedUser._id,
       username: addedUser.username,
       email: addedUser.email,
@@ -52,12 +61,13 @@ usersRoute.post("/register", createUserRules, checkValidation, async (req, res) 
       avatar: addedUser.avatar,
       joinDate: addedUser.joinDate
     };
-    
+
     res.status(201).json({
       success: true,
       data: user,
       message: "User registered successfully"
     });
+
   } catch (error) {
     console.error("Registration error:", error);
     res.status(500).json({
