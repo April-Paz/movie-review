@@ -10,7 +10,7 @@ const User = require("../../shared/models/User");
 const OTPModel = require("../../shared/models/OTP");
 const { matchPassword } = require("../../shared/password-utils");
 const { encodeToken } = require("../../shared/jwt-utils");
-const { sendEmail } = require("../../shared/email-utils"); // CHANGED: destructured import
+const sendEmail = require("../../shared/email-utils");
 const { randomNumberOfNDigits } = require("../../shared/compute-utils");
 const { authenticateToken, requireAdmin } = require("../../shared/middlewares/auth");
 
