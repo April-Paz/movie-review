@@ -68,19 +68,28 @@ usersRoute.post("/register", createUserRules, checkValidation, async (req, res) 
 });
 
 // POST - User login - Send OTP
+// POST - User login - Send OTP
 usersRoute.post("/login", loginRules, checkValidation, async (req, res) => {
   try {
+    console.log("=== LOGIN REQUEST START ===");
     const { email, password } = req.body;
+    console.log(`Login attempt for email: ${email}`);
+    
     const foundUser = await User.findOne({ email }); 
+    console.log(`User found: ${foundUser ? 'Yes' : 'No'}`);
     
     if (!foundUser) {
+      console.log(`User not found in database: ${email}`);
       return res.status(404).json({
         success: false,
         error: `User with ${email} doesn't exist`,
       });
     }
     
+    console.log(`Checking password for user: ${foundUser.username}`);
     const passwordMatched = matchPassword(password, foundUser.password);
+    console.log(`Password matched: ${passwordMatched}`);
+    
     if (!passwordMatched) {
       return res.status(401).json({
         success: false,
@@ -90,9 +99,11 @@ usersRoute.post("/login", loginRules, checkValidation, async (req, res) => {
 
     // Generate OTP
     const otp = randomNumberOfNDigits(6);
+    console.log(`Generated OTP: ${otp}`);
 
     // Delete any existing OTP for this user
     await OTPModel.deleteOne({ account: foundUser._id });
+    console.log(`Deleted existing OTPs for user`);
     
     // Create new OTP
     await OTPModel.create({ 
@@ -100,13 +111,19 @@ usersRoute.post("/login", loginRules, checkValidation, async (req, res) => {
       email: email,
       otp: otp.toString() 
     });
+    console.log(`Created new OTP in database`);
+    
+    console.log(`Attempting to send email to: ${email}`);
     
     // Send OTP email using Gmail API
     const emailSent = await sendEmail(
       email, 
-      "Your Login OTP - MovieReviews", `Your one-time password is: <strong>${otp}</strong><br>It expires in 5 minutes.`
+      "Your Login OTP - MovieReviews", 
+      `Your one-time password is: <strong>${otp}</strong><br>It expires in 5 minutes.`
     );
-      
+    
+    console.log(`Email sent result: ${emailSent}`);
+    
     if (!emailSent) {
       console.error("Failed to send OTP email to:", email);
       return res.status(500).json({
@@ -115,6 +132,7 @@ usersRoute.post("/login", loginRules, checkValidation, async (req, res) => {
       });
     }
     
+    console.log("=== LOGIN REQUEST SUCCESS ===");
     res.json({ 
       success: true,
       message: "OTP sent to your email", 
@@ -124,13 +142,17 @@ usersRoute.post("/login", loginRules, checkValidation, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("=== LOGIN ERROR ===");
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
+    console.error("=== END LOGIN ERROR ===");
     res.status(500).json({
       success: false,
       error: "Failed to process login request"
     });
   }
 });
+
 
 // POST - Verify OTP - Get JWT
 usersRoute.post("/verify-login", verifyLoginRules, checkValidation, async (req, res) => {
