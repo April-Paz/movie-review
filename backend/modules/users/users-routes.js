@@ -6,12 +6,11 @@ const loginRules = require("./middlewares/login-rules");
 const verifyLoginRules = require("./middlewares/verify-login-rules");
 const checkValidation = require("../../shared/middlewares/check-validation");
 
-
 const User = require("../../shared/models/User"); 
 const OTPModel = require("../../shared/models/OTP");
 const { matchPassword } = require("../../shared/password-utils");
 const { encodeToken } = require("../../shared/jwt-utils");
-const sendEmail = require("../../shared/email-utils");
+const { sendEmail } = require("../../shared/email-utils"); // CHANGED: destructured import
 const { randomNumberOfNDigits } = require("../../shared/compute-utils");
 const { authenticateToken, requireAdmin } = require("../../shared/middlewares/auth");
 
@@ -21,13 +20,19 @@ const usersRoute = Router();
 usersRoute.post("/register", createUserRules, checkValidation, async (req, res) => {
   try {
     const newUser = req.body;
+    
+    // Check if user already exists (both email AND username)
     const existingUser = await User.findOne({
-      email: newUser.email,
+      $or: [
+        { email: newUser.email },
+        { username: newUser.username }
+      ]
     });
+    
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        error: `User with ${newUser.email} already exists`,
+        error: `User with email ${newUser.email} or username ${newUser.username} already exists`,
       });
     }
     
@@ -35,7 +40,7 @@ usersRoute.post("/register", createUserRules, checkValidation, async (req, res) 
     if (!addedUser) {
       return res.status(500).json({
         success: false,
-        error: `Oops! User couldn't be added!`,
+        error: "Oops! User couldn't be added!",
       });
     }
     
@@ -48,9 +53,10 @@ usersRoute.post("/register", createUserRules, checkValidation, async (req, res) 
       joinDate: addedUser.joinDate
     };
     
-    res.json({
+    res.status(201).json({
       success: true,
-      data: user
+      data: user,
+      message: "User registered successfully"
     });
   } catch (error) {
     console.error("Registration error:", error);
@@ -61,7 +67,7 @@ usersRoute.post("/register", createUserRules, checkValidation, async (req, res) 
   }
 });
 
-// POST - User login - Send OTP)
+// POST - User login - Send OTP
 usersRoute.post("/login", loginRules, checkValidation, async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -95,23 +101,47 @@ usersRoute.post("/login", loginRules, checkValidation, async (req, res) => {
       otp: otp.toString() 
     });
     
-    // Send OTP email
-    await sendEmail(
+    // Send OTP email using Gmail API
+    const emailSent = await sendEmail(
       email, 
       "Your Login OTP - MovieReviews", 
-      `Your one-time password is: ${otp}. It expires in 5 minutes.`
+      `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #FFD700;">MovieReviews Login OTP</h2>
+        <p>Hello ${foundUser.username},</p>
+        <p>Your one-time password for login is:</p>
+        <div style="background: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #333; margin: 20px 0; border-radius: 5px;">
+          ${otp}
+        </div>
+        <p>This OTP will expire in <strong>5 minutes</strong>.</p>
+        <p>If you didn't request this login, please ignore this email.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 12px; color: #777;">
+          This is an automated message from MovieReviews. Please do not reply to this email.
+        </p>
+      </div>`
     );
+    
+    if (!emailSent) {
+      console.error("Failed to send OTP email to:", email);
+      return res.status(500).json({
+        success: false,
+        error: "Failed to send OTP email. Please try again."
+      });
+    }
     
     res.json({ 
       success: true,
       message: "OTP sent to your email", 
-      email: email 
+      data: {
+        email: email,
+        userId: foundUser._id
+      }
     });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({
       success: false,
-      error: "Failed to process login"
+      error: "Failed to process login request"
     });
   }
 });
@@ -120,7 +150,7 @@ usersRoute.post("/login", loginRules, checkValidation, async (req, res) => {
 usersRoute.post("/verify-login", verifyLoginRules, checkValidation, async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const foundUser = await User.findOne({ email }); // FIXED: Use User instead of UserModel
+    const foundUser = await User.findOne({ email });
     
     if (!foundUser) {
       return res.status(404).json({
@@ -141,10 +171,24 @@ usersRoute.post("/verify-login", verifyLoginRules, checkValidation, async (req, 
       });
     }
     
+    // Check OTP expiration (5 minutes)
+    const now = new Date();
+    const otpCreatedAt = new Date(savedOTP.createdAt);
+    const minutesDiff = (now - otpCreatedAt) / (1000 * 60);
+    
+    if (minutesDiff > 5) {
+      await OTPModel.deleteOne({ _id: savedOTP._id });
+      return res.status(401).json({ 
+        success: false,
+        error: "OTP has expired. Please request a new one." 
+      });
+    }
+    
     // Generate JWT token
     const token = encodeToken({ 
       _id: foundUser._id.toString(), 
       email: foundUser.email,
+      username: foundUser.username,
       role: foundUser.role 
     });
     
@@ -160,10 +204,12 @@ usersRoute.post("/verify-login", verifyLoginRules, checkValidation, async (req, 
           username: foundUser.username,
           email: foundUser.email,
           role: foundUser.role,
+          avatar: foundUser.avatar,
           joinDate: foundUser.joinDate
         },
         token: token
-      }
+      },
+      message: "Login successful"
     });
   } catch (error) {
     console.error("Verify login error:", error);
@@ -207,17 +253,40 @@ usersRoute.post("/resend-otp", async (req, res) => {
       otp: otp.toString() 
     });
     
-    // Send OTP email
-    await sendEmail(
+    // Send OTP email using Gmail API
+    const emailSent = await sendEmail(
       email, 
-      "Your Login OTP - MovieReviews", 
-      `Your one-time password is: ${otp}. It expires in 5 minutes.`
+      "Your New Login OTP - MovieReviews", 
+      `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #FFD700;">New MovieReviews Login OTP</h2>
+        <p>Hello ${foundUser.username},</p>
+        <p>Your new one-time password for login is:</p>
+        <div style="background: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #333; margin: 20px 0; border-radius: 5px;">
+          ${otp}
+        </div>
+        <p>This OTP will expire in <strong>5 minutes</strong>.</p>
+        <p>If you didn't request this login, please ignore this email.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 12px; color: #777;">
+          This is an automated message from MovieReviews. Please do not reply to this email.
+        </p>
+      </div>`
     );
+    
+    if (!emailSent) {
+      console.error("Failed to resend OTP email to:", email);
+      return res.status(500).json({
+        success: false,
+        error: "Failed to send new OTP. Please try again."
+      });
+    }
     
     res.json({ 
       success: true,
       message: "New OTP sent to your email", 
-      email: email 
+      data: {
+        email: email
+      }
     });
   } catch (error) {
     console.error("Resend OTP error:", error);
@@ -228,18 +297,39 @@ usersRoute.post("/resend-otp", async (req, res) => {
   }
 });
 
-
 // GET - Get all users (admin only)
 usersRoute.get("/users", authenticateToken, requireAdmin, async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
-  const UserModel = require("./users-model"); 
-  const result = await UserModel.getAllUsers(parseInt(page), parseInt(limit));
   
-  if (!result.success) {
-    return res.status(result.status).json(result);
+  try {
+    const skip = (page - 1) * limit;
+    const users = await User.find()
+      .select('-password')
+      .sort({ createdAt: -1 })
+      .skip(parseInt(skip))
+      .limit(parseInt(limit));
+    
+    const total = await User.countDocuments();
+    
+    res.json({
+      success: true,
+      data: {
+        users,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Get all users error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch users"
+    });
   }
-  
-  res.json(result);
 });
 
 // GET - Get user by ID
@@ -252,19 +342,32 @@ usersRoute.get("/users/:id", authenticateToken, async (req, res) => {
     });
   }
   
-  const UserModel = require("./users-model");
-  const result = await UserModel.getUserById(req.params.id);
-  
-  if (!result.success) {
-    return res.status(result.status).json(result);
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    console.error("Get user by ID error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch user"
+    });
   }
-  
-  res.json(result);
 });
 
 // PUT - Update user
 usersRoute.put("/users/:id", updateUserRules, authenticateToken, async (req, res) => {
-
+  // Check authorization
   if (req.user.role !== 'admin' && req.user._id.toString() !== req.params.id) {
     return res.status(403).json({
       success: false,
@@ -272,38 +375,143 @@ usersRoute.put("/users/:id", updateUserRules, authenticateToken, async (req, res
     });
   }
   
-  const UserModel = require("./users-model");
-  const result = await UserModel.updateUser(req.params.id, req.body);
-  
-  if (!result.success) {
-    return res.status(result.status).json(result);
+  // Prevent password updates through this route
+  if (req.body.password) {
+    delete req.body.password;
   }
   
-  res.json(result);
+  // Prevent role escalation for non-admins
+  if (req.user.role !== 'admin' && req.body.role) {
+    delete req.body.role;
+  }
+  
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { 
+        new: true,
+        runValidators: true 
+      }
+    ).select('-password');
+    
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: updatedUser,
+      message: "User updated successfully"
+    });
+  } catch (error) {
+    console.error("Update user error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to update user"
+    });
+  }
 });
 
 // DELETE - Delete user (admin only)
 usersRoute.delete("/users/:id", authenticateToken, requireAdmin, async (req, res) => {
-  const UserModel = require("./users-model");
-  const result = await UserModel.deleteUser(req.params.id);
-  
-  if (!result.success) {
-    return res.status(result.status).json(result);
+  try {
+    // Prevent self-deletion
+    if (req.user._id.toString() === req.params.id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot delete your own account'
+      });
+    }
+    
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
+    
+    if (!deletedUser) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+    
+    // Also delete associated OTPs
+    await OTPModel.deleteMany({ account: req.params.id });
+    
+    res.json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    console.error("Delete user error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to delete user"
+    });
   }
-  
-  res.json(result);
 });
 
 // GET - Get current user profile
 usersRoute.get("/profile", authenticateToken, async (req, res) => {
-  const UserModel = require("./users-model");
-  const result = await UserModel.getUserById(req.user._id);
-  
-  if (!result.success) {
-    return res.status(result.status).json(result);
+  try {
+    const user = await User.findById(req.user._id).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    console.error("Get profile error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch profile"
+    });
   }
-  
-  res.json(result);
+});
+
+// GET - Check if user exists (for registration validation)
+usersRoute.get("/check-user", async (req, res) => {
+  try {
+    const { email, username } = req.query;
+    
+    if (!email && !username) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide email or username to check'
+      });
+    }
+    
+    const query = {};
+    if (email) query.email = email;
+    if (username) query.username = username;
+    
+    const existingUser = await User.findOne(query);
+    
+    res.json({
+      success: true,
+      data: {
+        exists: !!existingUser,
+        user: existingUser ? {
+          email: existingUser.email,
+          username: existingUser.username
+        } : null
+      }
+    });
+  } catch (error) {
+    console.error("Check user error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to check user"
+    });
+  }
 });
 
 module.exports = { usersRoute };
