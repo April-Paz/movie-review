@@ -6,13 +6,11 @@ const loginRules = require("./middlewares/login-rules");
 const verifyLoginRules = require("./middlewares/verify-login-rules");
 const checkValidation = require("../../shared/middlewares/check-validation");
 
-
 const User = require("../../shared/models/User"); 
 const OTPModel = require("../../shared/models/OTP");
 const sendOTPEmail = require("../../shared/email-utils");
 const { matchPassword } = require("../../shared/password-utils");
 const { encodeToken } = require("../../shared/jwt-utils");
-const sendEmail = require("../../shared/email-utils");
 const { randomNumberOfNDigits } = require("../../shared/compute-utils");
 const { authenticateToken, requireAdmin } = require("../../shared/middlewares/auth");
 
@@ -62,7 +60,7 @@ usersRoute.post("/register", createUserRules, checkValidation, async (req, res) 
   }
 });
 
-// POST - User login - Send OTP)
+// POST - User login - Send OTP
 usersRoute.post("/login", loginRules, checkValidation, async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -97,18 +95,13 @@ usersRoute.post("/login", loginRules, checkValidation, async (req, res) => {
     });
     
     // Send OTP email
-    // await sendEmail(
-    //   email, 
-    //   "Your Login OTP - MovieReviews", 
-    //   `Your one-time password is: ${otp}. It expires in 5 minutes.`
-    // );
     const emailSent = await sendOTPEmail(email, otp);
 
     if (!emailSent) {
       return res.status(500).json({
         success: false,
-       error: "Failed to send OTP email. Please try again."
-     });
+        error: "Failed to send OTP email. Please try again."
+      });
     }
     
     res.json({ 
@@ -129,7 +122,7 @@ usersRoute.post("/login", loginRules, checkValidation, async (req, res) => {
 usersRoute.post("/verify-login", verifyLoginRules, checkValidation, async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const foundUser = await User.findOne({ email }); // FIXED: Use User instead of UserModel
+    const foundUser = await User.findOne({ email });
     
     if (!foundUser) {
       return res.status(404).json({
@@ -217,11 +210,14 @@ usersRoute.post("/resend-otp", async (req, res) => {
     });
     
     // Send OTP email
-    await sendEmail(
-      email, 
-      "Your Login OTP - MovieReviews", 
-      `Your one-time password is: ${otp}. It expires in 5 minutes.`
-    );
+    const emailSent = await sendOTPEmail(email, otp);
+    
+    if (!emailSent) {
+      return res.status(500).json({
+        success: false,
+        error: "Failed to resend OTP email"
+      });
+    }
     
     res.json({ 
       success: true,
@@ -236,7 +232,6 @@ usersRoute.post("/resend-otp", async (req, res) => {
     });
   }
 });
-
 
 // GET - Get all users (admin only)
 usersRoute.get("/users", authenticateToken, requireAdmin, async (req, res) => {
@@ -253,7 +248,7 @@ usersRoute.get("/users", authenticateToken, requireAdmin, async (req, res) => {
 
 // GET - Get user by ID
 usersRoute.get("/users/:id", authenticateToken, async (req, res) => {
-  // Users view their own profile or they're admin
+  // Users can view their own profile or admin can view any
   if (req.user.role !== 'admin' && req.user._id.toString() !== req.params.id) {
     return res.status(403).json({
       success: false,
@@ -273,7 +268,7 @@ usersRoute.get("/users/:id", authenticateToken, async (req, res) => {
 
 // PUT - Update user
 usersRoute.put("/users/:id", updateUserRules, authenticateToken, async (req, res) => {
-
+  // Users can update their own profile or admin can update any
   if (req.user.role !== 'admin' && req.user._id.toString() !== req.params.id) {
     return res.status(403).json({
       success: false,
@@ -316,4 +311,3 @@ usersRoute.get("/profile", authenticateToken, async (req, res) => {
 });
 
 module.exports = { usersRoute };
-
