@@ -35,10 +35,10 @@ async function sendEmail(to, subject, message) {
       },
     });
 
-    console.log(`✅ Email sent to ${to}`);
+    console.log(`Email sent to ${to}`);
     return true;
   } catch (error) {
-    console.log(`❌ Error sending email: `, error.message);
+    console.log(`Error sending email: `, error.message);
     return false;
   }
 }
