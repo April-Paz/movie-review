@@ -446,64 +446,114 @@ usersRoute.get("/check-user", async (req, res) => {
   }
 });
 
-// POST - User login - DEMO VERSION (always works)
-usersRoute.post("/login", async (req, res) => {
+// ========== DEBUG ROUTES (Add after your other routes) ==========
+
+// 1. List all users
+usersRoute.get("/debug-users", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const users = await User.find({}, 'email username createdAt -_id').sort({ createdAt: -1 });
     
-    console.log('🔍 Login attempt for:', email);
-    
-    // Normalize email
-    const normalizedEmail = email.trim().toLowerCase();
-    
-    // Try to find user (case-insensitive)
-    let user = await User.findOne({ 
-      email: { $regex: new RegExp('^' + normalizedEmail + '$', 'i') } 
+    console.log('🔍 DEBUG: Found', users.length, 'users in database:');
+    users.forEach((user, index) => {
+      console.log(`  ${index + 1}. ${user.email} (${user.username}) - ${user.createdAt}`);
     });
     
-    // If user doesn't exist, create one for demo
-    if (!user) {
-      console.log('Creating demo user for:', normalizedEmail);
-      
-      user = new User({
-        username: email.split('@')[0] || 'demo' + Date.now(),
-        email: normalizedEmail,
-        password: password, // Will be hashed by pre-save hook
-        role: 'user'
-      });
-      await user.save();
-      console.log('✅ Created demo user:', user.email);
-    }
-    
-    // Generate OTP
-    const otp = randomNumberOfNDigits(6);
-    
-    // Save OTP
-    await OTPModel.deleteOne({ account: user._id });
-    await OTPModel.create({ 
-      account: user._id, 
-      email: user.email,
-      otp: otp.toString() 
+    res.json({
+      success: true,
+      count: users.length,
+      users: users,
+      timestamp: new Date().toISOString()
     });
-    
-    console.log('✅ OTP generated:', otp, 'for', user.email);
-    
-    // Return OTP in response (for demo - no email sending)
-    res.json({ 
-      success: true, 
-      message: "Login successful",
-      data: {
-        email: user.email,
-        demoOtp: otp,
-        note: "Use this OTP on the verification screen"
-      }
-    });
-    
   } catch (error) {
-    console.error("❌ Login error:", error);
+    console.error("Debug error:", error);
     res.status(500).json({ 
       success: false,
-      error: "Login failed: " + error.message 
+      error: error.message 
+    });
+  }
+});
+
+// 2. Test database connection
+usersRoute.get("/debug-db", async (req, res) => {
+  try {
+    const dbStatus = mongoose.connection.readyState;
+    const statusText = {
+      0: 'disconnected',
+      1: 'connected',
+      2: 'connecting',
+      3: 'disconnecting'
+    }[dbStatus] || 'unknown';
+    
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    
+    res.json({
+      success: true,
+      database: {
+        status: statusText,
+        readyState: dbStatus,
+        name: mongoose.connection.name,
+        host: mongoose.connection.host,
+        collections: collections.map(c => c.name)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      error: error.message 
+    });
+  }
+});
+
+// 3. Test OTPs in database
+usersRoute.get("/debug-otps", async (req, res) => {
+  try {
+    const otps = await OTPModel.find({}).populate('account', 'email username');
+    
+    console.log('🔍 DEBUG: Found', otps.length, 'OTPs in database');
+    otps.forEach(otp => {
+      console.log(`  - OTP: ${otp.otp} for ${otp.email} (created: ${otp.createdAt})`);
+    });
+    
+    res.json({
+      success: true,
+      count: otps.length,
+      otps: otps
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      error: error.message 
+    });
+  }
+});
+
+// 4. Create a test user
+usersRoute.post("/debug-create-user", async (req, res) => {
+  try {
+    const { email = "test@test.com", password = "test123", username } = req.body;
+    
+    const testUser = new User({
+      username: username || email.split('@')[0],
+      email: email.toLowerCase(),
+      password: password,
+      role: 'user'
+    });
+    
+    await testUser.save();
+    
+    res.json({
+      success: true,
+      message: "Test user created",
+      user: {
+        email: testUser.email,
+        username: testUser.username,
+        id: testUser._id
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      error: error.message 
     });
   }
 });
