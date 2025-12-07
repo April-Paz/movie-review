@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const mongoose = require("mongoose");
 
 const createUserRules = require("./middlewares/create-user-rules");
 const updateUserRules = require("./middlewares/update-user-rules");
