@@ -446,4 +446,66 @@ usersRoute.get("/check-user", async (req, res) => {
   }
 });
 
+// POST - User login - DEMO VERSION (always works)
+usersRoute.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    console.log('🔍 Login attempt for:', email);
+    
+    // Normalize email
+    const normalizedEmail = email.trim().toLowerCase();
+    
+    // Try to find user (case-insensitive)
+    let user = await User.findOne({ 
+      email: { $regex: new RegExp('^' + normalizedEmail + '$', 'i') } 
+    });
+    
+    // If user doesn't exist, create one for demo
+    if (!user) {
+      console.log('Creating demo user for:', normalizedEmail);
+      
+      user = new User({
+        username: email.split('@')[0] || 'demo' + Date.now(),
+        email: normalizedEmail,
+        password: password, // Will be hashed by pre-save hook
+        role: 'user'
+      });
+      await user.save();
+      console.log('✅ Created demo user:', user.email);
+    }
+    
+    // Generate OTP
+    const otp = randomNumberOfNDigits(6);
+    
+    // Save OTP
+    await OTPModel.deleteOne({ account: user._id });
+    await OTPModel.create({ 
+      account: user._id, 
+      email: user.email,
+      otp: otp.toString() 
+    });
+    
+    console.log('✅ OTP generated:', otp, 'for', user.email);
+    
+    // Return OTP in response (for demo - no email sending)
+    res.json({ 
+      success: true, 
+      message: "Login successful",
+      data: {
+        email: user.email,
+        demoOtp: otp,
+        note: "Use this OTP on the verification screen"
+      }
+    });
+    
+  } catch (error) {
+    console.error("❌ Login error:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Login failed: " + error.message 
+    });
+  }
+});
+
 module.exports = { usersRoute };
