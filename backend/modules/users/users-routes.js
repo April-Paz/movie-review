@@ -61,76 +61,36 @@ usersRoute.post("/register", createUserRules, checkValidation, async (req, res) 
   }
 });
 
-// POST - User login - Send OTP 
+// POST - User login - Send OTP
 usersRoute.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
-    
-    console.log('🔍 Login attempt for:', email);
-    
-    // Escape regex special characters in email
-    const escapedEmail = email.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    
-    // Find user (case-insensitive, with escaped regex)
-    const user = await User.findOne({ 
-      email: { $regex: new RegExp('^' + escapedEmail + '$', 'i') } 
-    });
-    
+    let { email, password } = req.body;
+    email = email.trim().toLowerCase();
+
+    const user = await User.findOne({ email });
     if (!user) {
-      console.log('User not found for:', email);
-      
-      // List all users to see what's in DB
-      const allUsers = await User.find({}, 'email -_id');
-      const userEmails = allUsers.map(u => u.email);
-      console.log('📋 All users:', userEmails);
-      
       return res.status(400).json({ 
         success: false,
-        error: `User not found. Looking for: "${email}". Available: ${userEmails.join(', ')}` 
+        error: "User not found. Please register first." 
       });
     }
-    
-    console.log('User found:', user.email);
-    
-    // Check password
+
     const validPassword = matchPassword(password, user.password);
     if (!validPassword) {
-      return res.status(400).json({ 
-        success: false,
-        error: "Invalid password" 
-      });
+      return res.status(400).json({ error: "Invalid password" });
     }
-    
-    // Generate OTP
+
     const otp = randomNumberOfNDigits(6);
-    
-    // Save OTP
+
     await OTPModel.deleteOne({ account: user._id });
-    await OTPModel.create({ 
-      account: user._id, 
-      email: user.email,
-      otp: otp.toString() 
-    });
-    
-    console.log('OTP generated:', otp);
-    
-    // Return OTP for demo
-    res.json({ 
-      success: true, 
-      message: "OTP generated",
-      data: {
-        email: user.email,
-        demoOtp: otp,
-        note: "Use this OTP on verification screen"
-      }
-    });
-    
+    await OTPModel.create({ account: user._id, email, otp: otp.toString() });
+
+    await sendEmail(email, "Your Login OTP - MovieReviews", `Your OTP is: <strong>${otp}</strong><br>It expires in 5 minutes.`);
+
+    res.json({ success: true, message: "OTP sent to your email" });
+
   } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ 
-      success: false,
-      error: "Login failed: " + error.message 
-    });
+    res.status(500).json({ error: "Login failed" });
   }
 });
 
