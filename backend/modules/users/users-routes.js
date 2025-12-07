@@ -18,7 +18,6 @@ const { authenticateToken, requireAdmin } = require("../../shared/middlewares/au
 const usersRoute = Router();
 
 // POST - Register new user
-// POST - Register new user
 usersRoute.post("/register", createUserRules, checkValidation, async (req, res) => {
   try {
     const newUser = req.body;
@@ -62,36 +61,76 @@ usersRoute.post("/register", createUserRules, checkValidation, async (req, res) 
   }
 });
 
-// POST - User login - Send OTP
+// POST - User login - Send OTP 
 usersRoute.post("/login", async (req, res) => {
   try {
-    let { email, password } = req.body;
-    email = email.trim().toLowerCase();
-
-    const user = await User.findOne({ email });
+    const { email, password } = req.body;
+    
+    console.log('🔍 Login attempt for:', email);
+    
+    // Escape regex special characters in email
+    const escapedEmail = email.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
+    // Find user (case-insensitive, with escaped regex)
+    const user = await User.findOne({ 
+      email: { $regex: new RegExp('^' + escapedEmail + '$', 'i') } 
+    });
+    
     if (!user) {
+      console.log('User not found for:', email);
+      
+      // List all users to see what's in DB
+      const allUsers = await User.find({}, 'email -_id');
+      const userEmails = allUsers.map(u => u.email);
+      console.log('📋 All users:', userEmails);
+      
       return res.status(400).json({ 
         success: false,
-        error: "User not found. Please check your email or register first." 
+        error: `User not found. Looking for: "${email}". Available: ${userEmails.join(', ')}` 
       });
     }
-
+    
+    console.log('User found:', user.email);
+    
+    // Check password
     const validPassword = matchPassword(password, user.password);
     if (!validPassword) {
-      return res.status(400).json({ error: "Invalid password" });
+      return res.status(400).json({ 
+        success: false,
+        error: "Invalid password" 
+      });
     }
-
+    
+    // Generate OTP
     const otp = randomNumberOfNDigits(6);
-
+    
+    // Save OTP
     await OTPModel.deleteOne({ account: user._id });
-    await OTPModel.create({ account: user._id, email, otp: otp.toString() });
-
-    await sendEmail(email, "Your Login OTP - MovieReviews", `Your OTP is: <strong>${otp}</strong><br>It expires in 5 minutes.`);
-
-    res.json({ success: true, message: "OTP sent to your email" });
-
+    await OTPModel.create({ 
+      account: user._id, 
+      email: user.email,
+      otp: otp.toString() 
+    });
+    
+    console.log('OTP generated:', otp);
+    
+    // Return OTP for demo
+    res.json({ 
+      success: true, 
+      message: "OTP generated",
+      data: {
+        email: user.email,
+        demoOtp: otp,
+        note: "Use this OTP on verification screen"
+      }
+    });
+    
   } catch (error) {
-    res.status(500).json({ error: "Login failed" });
+    console.error("Login error:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Login failed: " + error.message 
+    });
   }
 });
 
@@ -443,118 +482,6 @@ usersRoute.get("/check-user", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to check user"
-    });
-  }
-});
-
-// ========== DEBUG ROUTES (Add after your other routes) ==========
-
-// 1. List all users
-usersRoute.get("/debug-users", async (req, res) => {
-  try {
-    const users = await User.find({}, 'email username createdAt -_id').sort({ createdAt: -1 });
-    
-    console.log('🔍 DEBUG: Found', users.length, 'users in database:');
-    users.forEach((user, index) => {
-      console.log(`  ${index + 1}. ${user.email} (${user.username}) - ${user.createdAt}`);
-    });
-    
-    res.json({
-      success: true,
-      count: users.length,
-      users: users,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    console.error("Debug error:", error);
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
-  }
-});
-
-// 2. Test database connection
-usersRoute.get("/debug-db", async (req, res) => {
-  try {
-    const dbStatus = mongoose.connection.readyState;
-    const statusText = {
-      0: 'disconnected',
-      1: 'connected',
-      2: 'connecting',
-      3: 'disconnecting'
-    }[dbStatus] || 'unknown';
-    
-    const collections = await mongoose.connection.db.listCollections().toArray();
-    
-    res.json({
-      success: true,
-      database: {
-        status: statusText,
-        readyState: dbStatus,
-        name: mongoose.connection.name,
-        host: mongoose.connection.host,
-        collections: collections.map(c => c.name)
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
-  }
-});
-
-// 3. Test OTPs in database
-usersRoute.get("/debug-otps", async (req, res) => {
-  try {
-    const otps = await OTPModel.find({}).populate('account', 'email username');
-    
-    console.log('🔍 DEBUG: Found', otps.length, 'OTPs in database');
-    otps.forEach(otp => {
-      console.log(`  - OTP: ${otp.otp} for ${otp.email} (created: ${otp.createdAt})`);
-    });
-    
-    res.json({
-      success: true,
-      count: otps.length,
-      otps: otps
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
-  }
-});
-
-// 4. Create a test user
-usersRoute.post("/debug-create-user", async (req, res) => {
-  try {
-    const { email = "test@test.com", password = "test123", username } = req.body;
-    
-    const testUser = new User({
-      username: username || email.split('@')[0],
-      email: email.toLowerCase(),
-      password: password,
-      role: 'user'
-    });
-    
-    await testUser.save();
-    
-    res.json({
-      success: true,
-      message: "Test user created",
-      user: {
-        email: testUser.email,
-        username: testUser.username,
-        id: testUser._id
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
     });
   }
 });
