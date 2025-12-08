@@ -8,6 +8,7 @@ const Movies = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const MAX_PAGES = 50;
 
   useEffect(() => {
     async function fetchMovies() {
@@ -18,7 +19,9 @@ const Movies = () => {
         if (!response.ok) throw new Error('Failed loading movies');
         const result = await response.json();
         setMovies(result.data?.movies || []);
-        setTotalPages(result.data?.totalPages || 1);
+
+        const tmdbTotalPages = result.data?.totalPages || 1;
+        setTotalPages(Math.min(tmdbTotalPages, MAX_PAGES));
       } catch (err) {
         setError(err.message);
       } finally {
